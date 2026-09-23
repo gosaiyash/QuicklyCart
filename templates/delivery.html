@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Partner - QuicklyCart</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007BFF;
+            --secondary-color: #343a40;
+            --surface-color: #FFFFFF;
+            --background-color: #f4f7f6;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --border-radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--background-color); }
+        
+        .app-header {
+            background: var(--surface-color);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .app-header .logo { font-size: 1.2rem; font-weight: 700; }
+        .app-header .logo span { color: var(--primary-color); }
+
+        .status-toggle {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 15px; border-radius: 25px;
+            font-weight: 600; cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .status-toggle.online { background: var(--success-color); color: white; }
+        .status-toggle.offline { background: #e9ecef; color: var(--secondary-color); }
+        
+        .container { padding: 1rem 1rem 80px 1rem; }
+        .content-section { display: none; }
+        .content-section.active { display: block; }
+
+        .task-list h2 { font-size: 1.2rem; margin-bottom: 1rem; color: #555; }
+        .task-card {
+            background: var(--surface-color);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 5px solid var(--primary-color);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        .task-card.new { border-left-color: var(--danger-color); }
+        .task-card.completed { border-left-color: var(--success-color); opacity: 0.8; }
+        
+        .task-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+        .task-header h3 { margin: 0; font-size: 1.1rem; }
+        .task-header .payout { font-weight: 700; font-size: 1.3rem; color: var(--success-color); }
+        
+        .task-details p { margin-bottom: 8px; display: flex; align-items: center; gap: 10px; color: #333; }
+        .task-details i { color: var(--primary-color); width: 15px; text-align: center; }
+        .task-details strong { color: var(--secondary-color); }
+        
+        .task-meta { display: flex; gap: 1.5rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--border-color); }
+        .meta-item { text-align: center; }
+        .meta-item .label { font-size: 0.8rem; color: #777; }
+        .meta-item .value { font-weight: 600; }
+        
+        .actions { margin-top: 1rem; display: flex; gap: 10px; }
+        .actions .btn { flex: 1; text-align: center; padding: 12px; font-size: 1rem; }
+        .btn-success { background: var(--success-color); border-color: var(--success-color); }
+        .btn-danger { background: var(--danger-color); border-color: var(--danger-color); }
+        .btn-secondary { background: #6c757d; border-color: #6c757d; }
+
+        .no-tasks { text-align: center; padding: 3rem; background: var(--surface-color); border-radius: var(--border-radius); }
+        .no-tasks i { font-size: 3rem; color: #ccc; margin-bottom: 1rem; }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--surface-color);
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+            z-index: 1000;
+        }
+        .nav-item {
+            flex-grow: 1;
+            text-align: center;
+            padding: 10px 0;
+            color: #6c757d;
+            cursor: pointer;
+            transition: color 0.3s;
+            position: relative;
+        }
+        .nav-item.active, .nav-item:hover { color: var(--primary-color); }
+        .nav-item i { font-size: 1.5rem; margin-bottom: 4px; display: block; }
+        .nav-item span { font-size: 0.8rem; font-weight: 500; }
+
+        .btn {
+            display: inline-block;
+            font-weight: 500;
+            color: white;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            background-color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            padding: 0.375rem 0.75rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            border-radius: 0.25rem;
+            transition: all 0.15s ease-in-out;
+            text-decoration: none;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--surface-color);
+            color: var(--secondary-color);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 1100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateX(120%);
+            transition: transform 0.3s ease-out;
+        }
+        .toast.show { transform: translateX(0); }
+        .toast.success { border-left: 4px solid var(--success-color); }
+        .toast.error { border-left: 4px solid var(--danger-color); }
+        .toast.info { border-left: 4px solid var(--primary-color); }
+        .toast i { font-size: 1.2rem; }
+        .toast.success i { color: var(--success-color); }
+        .toast.error i { color: var(--danger-color); }
+        .toast.info i { color: var(--primary-color); }
+
+        /* Notification Badge */
+        .notification-badge {
+            position: absolute;
+            top: 0;
+            right: 30%;
+            background-color: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        /* Help Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1200;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: var(--surface-color);
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #777;
+        }
+        .modal-body {
+            padding: 1.5rem;
+        }
+        .help-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .help-option {
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .help-option:hover {
+            background-color: #f8f9fa;
+            border-color: var(--primary-color);
+        }
+        .help-option h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--secondary-color);
+        }
+        .help-option p {
+            margin: 0;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="logo">Quickly<span>Cart</span></div>
+        <div id="statusToggle" class="status-toggle online">
+            <i class="fas fa-wifi"></i> <span>ONLINE</span>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="tasks" class="content-section active">
+            <div id="newTasks" class="task-list">
+                <h2><i class="fas fa-bell"></i> New Orders</h2>
+                <div id="newOrdersContainer">
+                    <!-- New orders will be rendered here by JS -->
+                    <div class="no-tasks" id="noNewOrders">
+                        <i class="fas fa-inbox"></i>
+                        <p>No new orders at the moment</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="currentTasks" class="task-list">
+                <h2><i class="fas fa-motorcycle"></i> Current Delivery</h2>
+                <div id="activeOrdersContainer">
+                    <!-- Active orders will be rendered here by JS -->
+                    <div class="no-tasks" id="noCurrentTask">
+                        <i class="fas fa-coffee"></i>
+                        <p>No active delivery. New orders will appear above.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="earnings" class="content-section">
+            <h2><i class="fas fa-dollar-sign"></i> Completed Today</h2>
+            <div id="completedTasks" class="task-list">
+                <div id="completedOrdersContainer">
+                    <!-- Completed orders will be rendered here by JS -->
+                    <div class="no-tasks" id="noCompletedOrders">
+                        <i class="fas fa-history"></i>
+                        <p>No completed deliveries yet today.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="profile" class="content-section">
+            <h2><i class="fas fa-user-circle"></i> Your Profile</h2>
+            <div class="task-card">
+                <h3>{{ user.first_name }} {{ user.last_name }}</h3>
+                <p>{{ user.mobile }}</p>
+                <p>{{ user.email }}</p>
+                <p class="muted">{{ user.address }}, {{ user.city }} - {{ user.pincode }}</p>
+                {% if rider %}
+                    <p>Status: <strong>{{ rider.status }}</strong></p>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active" data-target="tasks">
+            <i class="fas fa-tasks"></i>
+            <span>Orders</span>
+            <div class="notification-badge" id="orderNotificationBadge" style="display: none;">0</div>
+        </div>
+        <div class="nav-item" data-target="earnings">
+            <i class="fas fa-wallet"></i>
+            <span>Earnings</span>
+        </div>
+        <div class="nav-item" data-target="profile">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </div>
+    </nav>
+
+    <!-- Toast Notification -->
+    <div class="toast">
+        <i class="fas fa-info-circle"></i>
+        <div class="toast-content">Notification message</div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Order Help</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="help-options">
+                    <div class="help-option" data-action="customer-unreachable">
+                        <h4>Customer Unreachable</h4>
+                        <p>I can't reach the customer by phone or at the delivery location</p>
+                    </div>
+                    <div class="help-option" data-action="order-damaged">
+                        <h4>Order Damaged</h4>
+                        <p>The order was damaged during transit</p>
+                    </div>
+                    <div class="help-option" data-action="address-issue">
+                        <h4>Address Issue</h4>
+                        <p>I'm having trouble finding the delivery address</p>
+                    </div>
+                    <div class="help-option" data-action="payment-issue">
+                        <h4>Payment Issue</h4>
+                        <p>There's a problem with the payment for this order</p>
+                    </div>
+                    <div class="help-option" data-action="other-issue">
+                        <h4>Other Issue</h4>
+                        <p>I need help with something else</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Sample orders data - in a real app, this would come from an API
+            let orders = [];
+            
+            const statusToggle = document.getElementById('statusToggle');
+            const noNewOrdersMessage = document.getElementById('noNewOrders');
+            const noCurrentTaskMessage = document.getElementById('noCurrentTask');
+            const noCompletedOrdersMessage = document.getElementById('noCompletedOrders');
+            const orderNotificationBadge = document.getElementById('orderNotificationBadge');
+            
+            // Toggle online/offline status
+            statusToggle.addEventListener('click', () => {
+                const isOnline = statusToggle.classList.toggle('online');
+                statusToggle.classList.toggle('offline', !isOnline);
+                statusToggle.querySelector('span').textContent = isOnline ? 'ONLINE' : 'OFFLINE';
+                
+                if (isOnline) {
+                    showToast('You are now online and can receive orders', 'success');
+                } else {
+                    showToast('You are now offline and will not receive new orders', 'info');
+                }
+            });
+
+            // Render orders
+            function renderOrders() {
+                const newOrdersContainer = document.getElementById('newOrdersContainer');
+                const activeOrdersContainer = document.getElementById('activeOrdersContainer');
+                const completedOrdersContainer = document.getElementById('completedOrdersContainer');
+                
+                // Filter orders by status
+                const newOrders = orders.filter(order => order.status === 'new');
+                const activeOrders = orders.filter(order => order.status === 'active');
+                const completedOrders = orders.filter(order => order.status === 'completed');
+                
+                // Clear containers but keep the "no orders" messages
+                newOrdersContainer.innerHTML = '';
+                activeOrdersContainer.innerHTML = '';
+                completedOrdersContainer.innerHTML = '';
+                
+                // Add back the "no orders" messages
+                newOrdersContainer.appendChild(noNewOrdersMessage);
+                activeOrdersContainer.appendChild(noCurrentTaskMessage);
+                completedOrdersContainer.appendChild(noCompletedOrdersMessage);
+                
+                // Show/hide "no orders" messages based on order counts
+                noNewOrdersMessage.style.display = newOrders.length > 0 ? 'none' : 'block';
+                noCurrentTaskMessage.style.display = activeOrders.length > 0 ? 'none' : 'block';
+                noCompletedOrdersMessage.style.display = completedOrders.length > 0 ? 'none' : 'block';
+                
+                // Render new orders
+                newOrders.forEach(order => {
+                    const orderCard = createOrderCard(order);
+                    newOrdersContainer.appendChild(orderCard);
+                });
+                
+                // Render active orders
+                activeOrders.forEach(order => {
+                    const orderCard = createOrderCard(order);
+                    activeOrdersContainer.appendChild(orderCard);
+                });
+                
+                // Render completed orders
+                completedOrders.forEach(order => {
+                    const orderCard = createOrderCard(order);
+                    completedOrdersContainer.appendChild(orderCard);
+                });
+                
+                // Add event listeners to buttons
+                addOrderEventListeners();
+            }
+            
+            // Create order card HTML
+            function createOrderCard(order) {
+                const orderCard = document.createElement('div');
+                orderCard.className = `task-card ${order.status}`;
+                orderCard.dataset.id = order.id;
+                
+                let actionsHtml = '';
+                
+                if (order.status === 'new') {
+                    actionsHtml = `
+                        <div class="actions">
+                            <button class="btn btn-success accept-btn" data-id="${order.id}">Accept</button>
+                            <button class="btn btn-danger reject-btn" data-id="${order.id}">Decline</button>
+                        </div>
+                    `;
+                } else if (order.status === 'active') {
+                    actionsHtml = `
+                        <div class="actions">
+                            <button class="btn btn-success complete-btn" data-id="${order.id}">Complete</button>
+                            <button class="btn btn-secondary help-btn" data-id="${order.id}">Help</button>
+                        </div>
+                    `;
+                }
+                
+                orderCard.innerHTML = `
+                    <div class="task-header">
+                        <h3>${order.id}</h3>
+                        <div class="payout">₹${order.payout}</div>
+                    </div>
+                    <div class="task-details">
+                        <p><i class="fas fa-map-marker-alt"></i> <strong>Pickup:</strong> ${order.pickup}</p>
+                        <p><i class="fas fa-map-pin"></i> <strong>Delivery:</strong> ${order.delivery}</p>
+                        <p><i class="fas fa-route"></i> <strong>Distance:</strong> ${order.distance}</p>
+                        <p><i class="fas fa-box"></i> <strong>Items:</strong> ${order.items}</p>
+                    </div>
+                    <div class="task-meta">
+                        <div class="meta-item">
+                            <div class="label">${order.status === 'completed' ? 'Completed At' : 'Estimated Time'}</div>
+                            <div class="value">${order.status === 'completed' ? order.completedAt : order.estimatedTime}</div>
+                        </div>
+                        <div class="meta-item">
+                            <div class="label">Payment</div>
+                            <div class="value">${order.payment}</div>
+                        </div>
+                    </div>
+                    ${actionsHtml}
+                `;
+                
+                return orderCard;
+            }
+            
+            // Add event listeners to order buttons
+            function addOrderEventListeners() {
+                // Accept order buttons
+                document.querySelectorAll('.accept-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const orderId = this.dataset.id;
+                        acceptOrder(orderId);
+                    });
+                });
+                
+                // Reject order buttons
+                document.querySelectorAll('.reject-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const orderId = this.dataset.id;
+                        rejectOrder(orderId);
+                    });
+                });
+                
+                // Complete order buttons
+                document.querySelectorAll('.complete-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const orderId = this.dataset.id;
+                        completeOrder(orderId);
+                    });
+                });
+                
+                // Help buttons
+                document.querySelectorAll('.help-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const orderId = this.dataset.id;
+                        showHelpModal(orderId);
+                    });
+                });
+            }
+            
+            // Accept order
+            function acceptOrder(orderId) {
+                const orderIndex = orders.findIndex(order => order.id === orderId);
+                if (orderIndex !== -1) {
+                    orders[orderIndex].status = 'active';
+                    showToast(`Order ${orderId} accepted successfully!`, 'success');
+                    renderOrders();
+                    
+                    // In a real app, you would send an API request here
+                    console.log(`Order ${orderId} accepted by rider`);
+                }
+            }
+            
+            // Reject order
+            function rejectOrder(orderId) {
+                const orderIndex = orders.findIndex(order => order.id === orderId);
+                if (orderIndex !== -1) {
+                    // Remove the order from the list
+                    orders.splice(orderIndex, 1);
+                    showToast(`Order ${orderId} declined`, 'error');
+                    renderOrders();
+                    
+                    // In a real app, you would send an API request here
+                    console.log(`Order ${orderId} declined by rider`);
+                }
+            }
+            
+            // Complete order
+            function completeOrder(orderId) {
+                const orderIndex = orders.findIndex(order => order.id === orderId);
+                if (orderIndex !== -1) {
+                    orders[orderIndex].status = 'completed';
+                    orders[orderIndex].completedAt = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    showToast(`Order ${orderId} completed successfully!`, 'success');
+                    renderOrders();
+                    
+                    // In a real app, you would send an API request here
+                    console.log(`Order ${orderId} completed by rider`);
+                }
+            }
+            
+            // Show help modal
+            function showHelpModal(orderId) {
+                const modal = document.getElementById('helpModal');
+                modal.dataset.orderId = orderId;
+                modal.style.display = 'flex';
+            }
+            
+            // Close modal
+            document.querySelector('.modal-close').addEventListener('click', function() {
+                document.getElementById('helpModal').style.display = 'none';
+            });
+            
+            // Help options
+            document.querySelectorAll('.help-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const orderId = document.getElementById('helpModal').dataset.orderId;
+                    const action = this.dataset.action;
+                    
+                    // In a real app, you would send an API request here
+                    console.log(`Help requested for order ${orderId}: ${action}`);
+                    showToast(`Support request sent for ${action.replace('-', ' ')}`, 'info');
+                    
+                    document.getElementById('helpModal').style.display = 'none';
+                });
+            });
+            
+            // Bottom Navigation
+            const navItems = document.querySelectorAll('.nav-item');
+            const sections = document.querySelectorAll('.content-section');
+
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const targetId = item.dataset.target;
+
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    item.classList.add('active');
+
+                    sections.forEach(sec => {
+                        sec.classList.remove('active');
+                        if (sec.id === targetId) {
+                            sec.classList.add('active');
+                        }
+                    });
+                    
+                    // Clear notification badge when clicking on tasks tab
+                    if (targetId === 'tasks') {
+                        orderNotificationBadge.style.display = 'none';
+                        orderNotificationBadge.textContent = '0';
+                    }
+                });
+            });
+            
+            // Toast notification
+            function showToast(message, type = 'info') {
+                const toast = document.querySelector('.toast');
+                const toastContent = toast.querySelector('.toast-content');
+                const icon = toast.querySelector('i');
+                
+                // Update toast content and style
+                toastContent.textContent = message;
+                toast.className = `toast ${type}`;
+                
+                // Update icon
+                icon.className = 'fas';
+                if (type === 'success') icon.classList.add('fa-check-circle');
+                else if (type === 'error') icon.classList.add('fa-times-circle');
+                else icon.classList.add('fa-info-circle');
+                
+                // Show toast
+                toast.classList.add('show');
+                
+                // Hide toast after 3 seconds
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Receive new order
+            window.receiveOrder = function(orderId, pickup, delivery, items, distance, payout) {
+                // Create a new order object
+                const newOrder = {
+                    id: orderId,
+                    pickup: pickup,
+                    delivery: delivery,
+                    items: items || Math.floor(Math.random() * 5) + 1 + ' items',
+                    distance: distance || ((Math.random() * 5) + 1).toFixed(1) + ' km',
+                    estimatedTime: Math.floor(Math.random() * 15) + 10 + '-' + (Math.floor(Math.random() * 15) + 25) + ' min',
+                    payment: Math.random() > 0.5 ? 'Online' : 'Cash',
+                    payout: payout || Math.floor(Math.random() * 100) + 80,
+                    status: 'new',
+                    timestamp: new Date().toISOString()
+                };
+                
+                // Add the new order to the orders array
+                orders.push(newOrder);
+                
+                // Render the updated orders
+                renderOrders();
+                
+                // Show notification if not on tasks tab
+                if (!document.getElementById('tasks').classList.contains('active')) {
+                    orderNotificationBadge.style.display = 'flex';
+                    orderNotificationBadge.textContent = parseInt(orderNotificationBadge.textContent || '0') + 1;
+                }
+                
+                // Show toast notification
+                showToast(`New order received: ${orderId}`, 'info');
+                
+                // Play notification sound (in a real app)
+                // const notificationSound = new Audio('notification.mp3');
+                // notificationSound.play();
+                
+                return true; // Indicate successful receipt
+            };
+            
+            // Initialize with some sample orders for testing
+            setTimeout(() => {
+                window.receiveOrder('ORD-001', 'Spice Garden Restaurant, MG Road', '123 Park Avenue, Koramangala', '2 items', '3.2 km', 120);
+            }, 2000);
+            
+            // Check for new orders from localStorage (communication from seller.html)
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'newDeliveryOrder') {
+                    try {
+                        const orderData = JSON.parse(e.newValue);
+                        if (orderData && orderData.id) {
+                            window.receiveOrder(
+                                orderData.id,
+                                orderData.pickup,
+                                orderData.delivery,
+                                orderData.items,
+                                orderData.distance,
+                                orderData.payout
+                            );
+                            // Clear the localStorage item after processing
+                            localStorage.removeItem('newDeliveryOrder');
+                        }
+                    } catch (error) {
+                        console.error('Error processing new order:', error);
+                    }
+                }
+            });
+            
+            // Check if there's already an order in localStorage when the page loads
+            document.addEventListener('DOMContentLoaded', function() {
+                const storedOrder = localStorage.getItem('newDeliveryOrder');
+                if (storedOrder) {
+                    try {
+                        const orderData = JSON.parse(storedOrder);
+                        if (orderData && orderData.id) {
+                            window.receiveOrder(
+                                orderData.id,
+                                orderData.pickup,
+                                orderData.delivery,
+                                orderData.items,
+                                orderData.distance,
+                                orderData.payout
+                            );
+                            // Clear the localStorage item after processing
+                            localStorage.removeItem('newDeliveryOrder');
+                        }
+                    } catch (error) {
+                        console.error('Error processing stored order:', error);
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

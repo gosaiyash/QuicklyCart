@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Become a Rider - QuicklyCart</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root{--primary:#007BFF;--bg:#f8fafc;--surface:#fff;--border:#e5e7eb;--radius:12px}
+        body{background:var(--bg);margin:0;font-family:'Poppins',sans-serif;color:#111827}
+        .container{max-width:900px;margin:20px auto;padding:0 16px}
+        .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 6px 20px rgba(0,0,0,.06)}
+        .card-header{padding:20px;background:var(--primary);color:#fff;text-align:center}
+        .card-header h2{margin:10px 0 0}
+        .card-body{padding:20px}
+        .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+        @media (max-width:720px){.grid{grid-template-columns:1fr}}
+        .input{width:100%;padding:12px;border:1px solid var(--border);border-radius:10px}
+        .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 16px;border-radius:10px;border:1px solid var(--primary);background:var(--primary);color:#fff;font-weight:700;cursor:pointer}
+        .uploader{display:flex;align-items:center;gap:12px;padding:12px;border:1px dashed var(--border);border-radius:10px;background:#f8fafc}
+        .hint{color:#6b7280;font-size:.9rem}
+    </style>
+</head>
+<body>
+    {% include 'partials/navbar.html' %}
+    <div class="container">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-motorcycle" style="font-size:2rem"></i><h2>Become a Rider</h2></div>
+            <div class="card-body">
+                <form method="post" action="" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="grid">
+                        <input class="input" name="first_name" placeholder="First Name" value="{{ initial.first_name|default:'' }}" required>
+                        <input class="input" name="last_name" placeholder="Last Name" value="{{ initial.last_name|default:'' }}" required>
+                    </div>
+                    <input class="input" name="email" placeholder="Email" type="email" value="{{ initial.email|default:'' }}" required style="margin-top:10px">
+                    <input class="input" name="mobile" placeholder="Mobile Number" value="{{ initial.mobile|default:'' }}" required style="margin-top:10px">
+                    <div class="grid" style="margin-top:10px">
+                        <input class="input" name="city" placeholder="City" value="{{ initial.city|default:'' }}" required>
+                        <input class="input" name="pincode" placeholder="Pincode" pattern="[0-9]{6}" value="{{ initial.pincode|default:'' }}" required>
+                    </div>
+                    <input class="input" name="address" placeholder="Full Address" value="{{ initial.address|default:'' }}" required style="margin-top:10px">
+
+                    <h3 style="margin-top:18px">Identity Proof</h3>
+                    <select class="input" name="id_proof_type" required>
+                        <option value="">-- Select Document --</option>
+                        <option>PAN Card</option>
+                        <option>Aadhaar Card</option>
+                        <option>Election Card</option>
+                        <option>Driving Licence</option>
+                    </select>
+                    <div class="uploader" style="margin-top:8px">
+                        <i class="fas fa-upload"></i>
+                        <input type="file" name="id_proof_file" accept="image/*,application/pdf" required>
+                    </div>
+
+                    <h3 style="margin-top:18px">Driving Licence</h3>
+                    <div class="uploader">
+                        <i class="fas fa-upload"></i>
+                        <input type="file" name="dl_file" accept="image/*,application/pdf" required>
+                    </div>
+
+                    <h3 style="margin-top:18px">RC Book</h3>
+                    <div class="uploader">
+                        <i class="fas fa-upload"></i>
+                        <input type="file" name="rc_book" accept="image/*,application/pdf" required>
+                    </div>
+                    <div class="hint">Upload a clear photo/scan of your vehicle's RC book.</div>
+
+                    <h3 style="margin-top:18px">Profile Image</h3>
+                    <div class="uploader">
+                        <i class="fas fa-upload"></i>
+                        <input type="file" name="profileImage" accept="image/*" required>
+                    </div>
+
+                    <div style="margin-top:18px" class="grid">
+                        <input class="input" type="password" name="password" placeholder="Password" required>
+                        <input class="input" type="password" name="confirmPassword" placeholder="Confirm Password" required>
+                    </div>
+
+                    <div style="margin-top:18px;text-align:right">
+                        <button class="btn" type="submit"><i class="fas fa-user-plus"></i>Create Rider Account</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% include 'footer.html' %}
+</body>
+</html>
+
+

@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sell on QuicklyCart</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007BFF;
+            --primary-hover-color: #0056b3;
+            --secondary-color: #343a40;
+            --background-color: #f8f9fa;
+            --surface-color: #FFFFFF;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+            --border-radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body {
+            background-color: var(--background-color);
+            color: var(--secondary-color);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        /* Background decorative elements */
+        body::before, body::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            z-index: -1;
+            filter: blur(50px);
+        }
+        body::before {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(45deg, var(--primary-color), var(--success-color));
+            top: -150px;
+            left: -150px;
+        }
+        body::after {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(45deg, var(--danger-color), #ffc107);
+            bottom: -120px;
+            right: -120px;
+        }
+        .page-header {
+            background-color: var(--surface-color);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .main-header {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0.5rem 1.5rem; /* Reduced padding */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 60px; /* Reduced height */
+        }
+        .main-header .logo {
+            font-size: 1.4rem; /* Slightly smaller logo */
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .main-header .logo span { color: var(--secondary-color); }
+        .header-actions { display: flex; gap: 10px; }
+        .header-actions .btn {
+            white-space: nowrap; /* Prevents button text from wrapping */
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 80px 2rem 2rem; /* Adjusted top padding for smaller header */
+        }
+        
+        .hero-section {
+            text-align: center;
+            padding: 4rem 0;
+        }
+        .hero-section h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        .hero-section p {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .info-section {
+            background: var(--surface-color);
+            padding: 3rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+        .info-section h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 2.5rem;
+        }
+        .benefits-grid, .how-it-works-steps, .testimonials-grid {
+            display: grid;
+            gap: 2rem;
+        }
+        .benefits-grid {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+        .benefit-card, .step-item, .testimonial-card {
+            text-align: center;
+        }
+        .benefit-card .icon, .step-item .icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        .benefit-card h3, .step-item h3, .testimonial-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        .how-it-works-steps {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+        .step-item .icon {
+            width: 80px;
+            height: 80px;
+            background: #eef2ff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 1rem;
+            font-size: 2.5rem;
+        }
+        .testimonials-grid {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+        .testimonial-card {
+            background: var(--background-color);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+        }
+        .testimonial-card img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+            object-fit: cover;
+        }
+        .testimonial-card p {
+            font-style: italic;
+            color: #555;
+            margin-bottom: 1rem;
+        }
+        .testimonial-card .author {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        /* Modal Styles */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 2000; transition: opacity 0.3s ease; }
+        .modal-overlay.active { display: flex; }
+        .form-container {
+            background: var(--surface-color);
+            padding: 0;
+            border-radius: var(--border-radius);
+            width: 100%;
+            max-width: 480px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        .form-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+        .form-header .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.8);
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+        .form-header i { font-size: 3rem; margin-bottom: 10px; }
+        .form-header h3 { font-size: 1.8rem; font-weight: 600; }
+        .form-body {
+            padding: 30px;
+            max-height: 70vh;
+            overflow-y: auto;
+            scrollbar-width: none; /* Firefox */
+        }
+        .form-body::-webkit-scrollbar {
+            display: none; /* Safari and Chrome */
+        }
+        .form-group { margin-bottom: 15px; text-align: left; position: relative; }
+        .form-group label { font-weight: 500; font-size: 0.9rem; margin-bottom: 5px; display: block; }
+        .form-group .input-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #aaa; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .form-group input[type="email"], .form-group input[type="tel"], .form-group input[type="password"], .form-group input[type="text"] {
+             padding-left: 45px;
+        }
+        .form-row { display: flex; gap: 15px; }
+        .form-row .form-group { flex: 1; }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%;
+            padding: 12px 20px; border: 1px solid var(--primary-color); border-radius: 8px;
+            background-color: var(--primary-color); color: white; font-weight: 600;
+            text-decoration: none; cursor: pointer; transition: all 0.3s ease;
+        }
+        .btn:hover { background-color: var(--primary-hover-color); }
+        .btn-outline { background-color: transparent; color: var(--primary-color); }
+        .btn-outline:hover { background-color: var(--primary-color); color: white; }
+        .btn-sm { padding: 8px 16px; font-size: 0.9rem; }
+        .gender-group { display: flex; gap: 10px; padding-top: 5px; }
+        .gender-group input[type="radio"] { display: none; }
+        .gender-group .radio-label {
+            flex: 1; padding: 10px; border: 1px solid var(--border-color);
+            border-radius: 8px; text-align: center; cursor: pointer;
+            transition: all 0.3s ease; font-weight: 500;
+        }
+        .gender-group .radio-label:hover { background-color: #eef2ff; border-color: var(--primary-color); }
+        .gender-group input[type="radio"]:checked + .radio-label {
+            background-color: var(--primary-color); color: white;
+            border-color: var(--primary-color); font-weight: 600;
+        }
+        .profile-upload-group, .document-upload-group { display: flex; align-items: center; gap: 15px; }
+        #profileImagePreview, .document-preview { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; background: #eef2ff; border: 2px solid var(--border-color); }
+        .document-preview { border-radius: 8px; }
+        .file-input-wrapper { flex: 1; }
+        .file-input-wrapper input[type="file"] { display: none; }
+        .file-input-label {
+            display: inline-block; padding: 10px 15px; border: 1px solid var(--border-color);
+            border-radius: 8px; cursor: pointer; background: #f8f9fa; width: 100%; text-align: center;
+        }
+        .file-input-label i { margin-right: 8px; }
+        .otp-group input.otp-input-single {
+            width: 100%;
+            height: 60px;
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: 600;
+            letter-spacing: 0.5em;
+            padding-left: 0.5em; /* To center the text with letter-spacing */
+        }
+        .otp-timer { margin-top: 15px; color: #666; text-align: center; }
+        .otp-timer span { font-weight: 700; color: var(--primary-color); }
+        #resendOtpBtn { background: none; border: none; color: var(--primary-color); cursor: pointer; font-weight: 600; margin-top: 10px; width: auto; display: block; margin-left: auto; margin-right: auto; }
+        #resendOtpBtn:disabled { color: #999; cursor: not-allowed; }
+
+        /* Validation Styles */
+        .error-message {
+            color: var(--danger-color);
+            font-size: 0.8rem;
+            margin-top: 4px;
+            display: none; /* Hidden by default */
+        }
+        input.invalid, select.invalid {
+            border-color: var(--danger-color);
+        }
+        
+        /* --- Notification Pop-up Styles --- */
+        #notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .notification {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            width: 340px;
+            max-width: 90vw;
+            color: white;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .notification.hide {
+            transform: translateX(120%);
+            opacity: 0;
+        }
+        .notification .icon { font-size: 1.6rem; margin-right: 15px; }
+        .notification .message { flex-grow: 1; font-weight: 500; line-height: 1.4; }
+        .notification .close-notif {
+            background: none; border: none; color: rgba(255,255,255,0.7);
+            font-size: 1.4rem; cursor: pointer; margin-left: 15px; transition: color 0.3s;
+        }
+        .notification .close-notif:hover { color: white; }
+        .notification.success { background-color: var(--success-color); }
+        .notification.error { background-color: var(--danger-color); }
+        .notification.info { background-color: var(--primary-color); }
+        .user-actions {
+            display: flex;
+            width: 25vw;
+            align-items: center;
+            gap: 15px; /* Increased gap */
+            flex-shrink: 0; /* Prevents user actions from shrinking */
+        }
+
+        /* --- Corrected & Enhanced Profile Dropdown Styles --- */
+        .profile-dropdown {
+            position: relative;
+             margin-left:6em;
+        }
+
+        .profile-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: transparent;
+            border: 1px solid transparent; /* Added for consistent size */
+            cursor: pointer;
+            padding: 4px 10px 4px 4px; /* Adjusted padding */
+            border-radius: 50px;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+            outline: none;
+        }
+
+        .profile-toggle:hover,
+        .profile-dropdown:focus-within .profile-toggle {
+            background-color: var(--surface-color);
+            border-color: var(--border-color);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .profile-toggle img {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .profile-toggle span {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--secondary-color);
+        }
+
+        .profile-toggle .fa-chevron-down {
+            font-size: 0.8rem;
+            color: #888;
+            transition: transform 0.3s ease;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 10px); /* Better positioning below the button */
+            right: 0;
+            background-color: var(--surface-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            width: 220px;
+            z-index: 1100;
+            overflow: hidden;
+            padding: 8px 0;
+        }
+
+        /* Pure CSS Dropdown Toggle using :focus-within */
+        .profile-dropdown:focus-within .dropdown-menu {
+            display: block;
+           
+        }
+
+        .profile-dropdown:focus-within .profile-toggle .fa-chevron-down {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .dropdown-menu ul li a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-menu ul li a:hover {
+            background-color: #f0f2f5; /* Lighter hover color */
+        }
+
+        .dropdown-menu ul li a i {
+            width: 16px;
+            text-align: center;
+            color: #6c757d; /* Slightly darker icon color for better visibility */
+        }
+
+        .dropdown-menu .dropdown-divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 8px 0;
+        }
+
+        .dropdown-menu ul li a.logout {
+            color: var(--danger-color);
+            font-weight: 500;
+        }
+
+        .dropdown-menu ul li a.logout i {
+            color: var(--danger-color);
+        }
+    </style>
+</head>
+<body>
+    {% load static %}
+
+    {% comment %} <header class="page-header">
+        <div class="main-header">
+            <div class="logo">Quickly<span>Cart</span> Seller </div>
+            <div class="header-actions">
+                <button id="loginBtn" class="btn btn-outline btn-sm">Login</button>
+                <button id="signupBtn" class="btn btn-sm">Become a Seller</button>
+            </div>
+        </div>
+    </header> {% endcomment %}
+
+    <header class="page-header">
+        <div class="main-header">
+            <div class="logo">Quickly<span>Cart</span> Seller </div>
+
+            <div class="user-actions" id="userActions">
+
+                {% if request.session.user_name %}
+                    
+                        <div class="profile-dropdown">
+                        <button class="profile-toggle" aria-haspopup="true" aria-expanded="false">
+                            <img src="{% static 'images/'|add:request.session.image %}" alt="{{ request.session.image }}">
+                           <span>{{ request.session.user_name }}</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu">
+                            <ul>
+                                <li><a href="/account"><i class="fas fa-user-circle"></i> My Account</a></li>
+                                <li><a href="/orders"><i class="fas fa-box"></i> Order History</a></li>
+                                <li class="dropdown-divider"></li>
+                                <li><a href="logout/" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                {% else %}
+                        <button id="loginBtn" class="btn btn-outline btn-sm">Login</button>
+                        <button id="signupBtn" class="btn btn-sm">Become a Seller</button>
+                {% endif %}
+                
+           
+            </div>
+    </header>
+
+
+    <main class="container">
+        <section class="hero-section">
+            <h1>Reach Millions of Customers</h1>
+            <p>Join our platform and grow your business with our extensive network and powerful tools.</p>
+            <button id="heroSignupBtn" class="btn" style="width: auto; padding: 15px 30px; font-size: 1.1rem;">Start Selling Today</button>
+        </section>
+
+        <section class="info-section">
+            <h2>Why Sell on QuicklyCart?</h2>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="icon"><i class="fas fa-users"></i></div>
+                    <h3>Huge Customer Base</h3>
+                    <p>Tap into our large and loyal customer network to boost your sales.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="icon"><i class="fas fa-shipping-fast"></i></div>
+                    <h3>Fast & Reliable Delivery</h3>
+                    <p>We handle the logistics, ensuring your products reach customers in minutes.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="icon"><i class="fas fa-headset"></i></div>
+                    <h3>Dedicated Seller Support</h3>
+                    <p>Our team is here to help you every step of the way, from onboarding to sales.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="info-section">
+            <h2>How It Works</h2>
+            <div class="how-it-works-steps">
+                <div class="step-item">
+                    <div class="icon">1</div>
+                    <h3>Register</h3>
+                    <p>Create your seller account in just a few simple steps.</p>
+                </div>
+                <div class="step-item">
+                    <div class="icon">2</div>
+                    <h3>Verify</h3>
+                    <p>Complete your profile and document verification online.</p>
+                </div>
+                <div class="step-item">
+                    <div class="icon">3</div>
+                    <h3>List Products</h3>
+                    <p>Upload your product catalog using our easy-to-use tools.</p>
+                </div>
+                 <div class="step-item">
+                    <div class="icon">4</div>
+                    <h3>Get Paid</h3>
+                    <p>Enjoy timely and secure payments directly to your account.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="info-section">
+            <h2>What Our Sellers Say</h2>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <img src="https://placehold.co/80x80/EBF4FF/007BFF?text=S" alt="Seller Photo">
+                    <p>"QuicklyCart has transformed my business. The platform is incredibly easy to use and my sales have doubled in just three months!"</p>
+                    <div class="author">- Sarah L., Fresh Produce Seller</div>
+                </div>
+                <div class="testimonial-card">
+                    <img src="https://placehold.co/80x80/dbe4ff/007BFF?text=M" alt="Seller Photo">
+                    <p>"The delivery service is a game-changer. I can focus on my products without worrying about logistics. Highly recommended!"</p>
+                    <div class="author">- Mike D., Bakery Owner</div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <div id="notification-container"></div>
+
+    <!-- Seller Signup Modal -->
+    <div id="signupModal" class="modal-overlay">
+        <div class="form-container">
+            <div class="form-header">
+                <button class="close-btn">&times;</button>
+                <i class="fas fa-store"></i>
+                <h3>Become a Seller</h3>
+            </div>
+            <div class="form-body">
+                <form id="sellerSignupForm" method="post" action="seller_register/" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %} 
+                    
+                    <div class="form-row">
+                        <div class="form-group"><i class="fas fa-user input-icon"></i><input type="text" name="first_name" placeholder="First Name" required><span class="error-message"></span></div>
+                        <div class="form-group"><i class="fas fa-user input-icon"></i><input type="text" name="last_name" placeholder="Last Name" required><span class="error-message"></span></div>
+                    </div>
+                    <div class="form-group"><i class="fas fa-envelope input-icon"></i><input type="email" name="email" placeholder="Email" required><span class="error-message"></span></div>
+                    <div class="form-group"><i class="fas fa-phone input-icon"></i><input type="tel" name="mobile" placeholder="Mobile Number" required pattern="[0-9]{10}"><span class="error-message"></span></div>
+                    <div class="form-group"><label>Gender</label><div class="gender-group"><input type="radio" id="male" name="gender" value="male" checked><label for="male" class="radio-label">Male</label><input type="radio" id="female" name="gender" value="female"><label for="female" class="radio-label">Female</label><input type="radio" id="other" name="gender" value="other"><label for="other" class="radio-label">Other</label></div></div>
+                    <div class="form-group"><i class="fas fa-map-marker-alt input-icon"></i><input type="text" name="address" placeholder="Full Address" required><span class="error-message"></span></div>
+                    <div class="form-row">
+                        <div class="form-group"><i class="fas fa-city input-icon"></i><input type="text" name="city" placeholder="City" required><span class="error-message"></span></div>
+                        <div class="form-group"><i class="fas fa-map-pin input-icon"></i><input type="text" name="pincode" placeholder="Pincode" required pattern="[0-9]{6}"><span class="error-message"></span></div>
+                    </div>
+                    <div class="form-group profile-upload-group"><img src="https://placehold.co/60x60/eef2ff/333?text=+" id="profileImagePreview"  alt="Profile Preview"><div class="file-input-wrapper"><label for="profileImage" class="file-input-label"><i class="fas fa-upload"></i> Profile Image</label><input type="file" id="profileImage" name="profileImage" accept="image/*" required></div><span class="error-message"></span></div>
+                    <div class="form-group"><i class="fas fa-lock input-icon"></i><input type="password" id="password" name="password" placeholder="Password" required><span class="error-message"></span></div>
+                    <div class="form-group"><i class="fas fa-lock input-icon"></i><input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required><span class="error-message"></span></div>
+                    <button type="submit" class="btn">Create Seller Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seller Login Modal -->
+    <div id="loginModal" class="modal-overlay">
+        <div class="form-container">
+            <div class="form-header">
+                <button class="close-btn">&times;</button>
+                <i class="fas fa-sign-in-alt"></i>
+                <h3>Seller Login</h3>
+            </div>
+            <div class="form-body">
+                <form id="sellerLoginForm" method="post" action="user_login/" novalidate>
+                     {% csrf_token %} 
+                    <div class="form-group">
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="email" name="username" placeholder="Email" required>
+                        <span class="error-message"></span>
+                    </div>
+                    <div class="form-group">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" name="password" placeholder="Password" required>
+                        <span class="error-message"></span>
+                    </div>
+                    <button type="submit" class="btn">Login</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- OTP Verification Modal -->
+    <div id="otpModal" class="modal-overlay">
+        <div class="form-container">
+            <div class="form-header">
+                <button class="close-btn">&times;</button>
+                <i class="fas fa-key"></i>
+                <h3>Verify Your Account</h3>
+            </div>
+            <div class="form-body">
+                <p style="text-align: center; margin-bottom: 1rem;">Enter the OTP sent to your mobile number.</p>
+                <form id="otpForm" method="post" action="verify_seller_otp/" novalidate>
+                    {% csrf_token %}
+                    <div class="form-group otp-group">
+                        <input type="text" name="userotp" class="otp-input-single" placeholder="_ _ _ _ _ _" required pattern="[0-9]{6}" maxlength="6">
+                    </div>
+                    <span class="error-message"></span>
+                    <button type="submit" class="btn">Verify OTP</button>
+                    <div class="otp-timer">Resend OTP in <span id="otpTimer">30</span>s</div>
+                    <button type="button" id="resendOtpBtn" disabled>Resend OTP</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Submission Modal -->
+    <div id="documentModal" class="modal-overlay">
+        <div class="form-container">
+            <div class="form-header">
+                <button class="close-btn">&times;</button>
+                <i class="fas fa-file-alt"></i>
+                <h3>Submit Documents</h3>
+            </div>
+            <div class="form-body">
+                <form id="documentForm" method="post" action="submit_seller_documents/" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="idProofType">Identity Proof</label>
+                        <select name="id_proof_type" id="idProofType" required>
+                            <option value="">-- Select Document --</option>
+                            <option value="pan">PAN Card</option>
+                            <option value="aadhaar">Aadhaar Card</option>
+                            <option value="election">Election Card</option>
+                            <option value="driving">Driving Licence</option>
+                        </select>
+                        <span class="error-message"></span>
+                    </div>
+                    <div class="form-group document-upload-group">
+                        <img src="https://placehold.co/60x60/eef2ff/333?text=+" class="document-preview" id="idProofPreview">
+                        <div class="file-input-wrapper">
+                            <label for="idProofFile" class="file-input-label"><i class="fas fa-upload"></i> Upload ID Proof</label>
+                            <input type="file" id="idProofFile" name="id_proof_file" accept="image/*,.pdf" required>
+                        </div>
+                        <span class="error-message"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="addressProofType">Address Proof</label>
+                        <select name="address_proof_type" id="addressProofType" required>
+                             <option value="">-- Select Document --</option>
+                            <option value="aadhaar">Aadhaar Card</option>
+                            <option value="ration">Ration Card</option>
+                            <option value="election">Election Card</option>
+                        </select>
+                        <span class="error-message"></span>
+                    </div>
+                     <div class="form-group document-upload-group">
+                        <img src="https://placehold.co/60x60/eef2ff/333?text=+" class="document-preview" id="addressProofPreview">
+                        <div class="file-input-wrapper">
+                            <label for="addressProofFile" class="file-input-label"><i class="fas fa-upload"></i> Upload Address Proof</label>
+                            <input type="file" id="addressProofFile" name="address_proof_file" accept="image/*,.pdf" required>
+                        </div>
+                        <span class="error-message"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gstNo">GST Number (Optional)</label>
+                        <i class="fas fa-percent input-icon"></i>
+                        <input type="text" id="gstNo" name="gst_no" placeholder="e.g., 22AAAAA0000A1Z5">
+                        <span class="error-message"></span>
+                    </div>
+
+                    <button type="submit" class="btn">Submit for Verification</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% include "footer.html" %}
+
+ 
+
+</body>
+   <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            function showNotification(message, type = 'info', duration = 5000) {
+                const container = document.getElementById('notification-container');
+                if (!container) return;
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                const icons = { success: 'fa-check-circle', error: 'fa-times-circle', info: 'fa-info-circle' };
+                notification.innerHTML = `<i class="icon fas ${icons[type]}"></i><div class="message">${message}</div><button class="close-notif">&times;</button>`;
+                container.appendChild(notification);
+                requestAnimationFrame(() => notification.classList.add('show'));
+                const close = () => {
+                    notification.classList.remove('show');
+                    notification.classList.add('hide');
+                    setTimeout(() => notification.remove(), 500);
+                };
+                notification.querySelector('.close-notif').addEventListener('click', close);
+                if (duration) {
+                    setTimeout(close, duration);
+                }
+            }
+            
+            {% if messages %}
+                {% for message in messages %}
+                    (() => {
+                        let type = 'info';
+                        const tags = "{{ message.tags }}";
+                        if (tags.includes('success')) type = 'success';
+                        else if (tags.includes('error')) type = 'error';
+                        else if (tags.includes('warning')) type = 'error';
+                        showNotification("{{ message|escapejs }}", type, 6000);
+                    })();
+                {% endfor %}
+            {% endif %}
+
+
+            let showOtpForm = false; // Set to true to show OTP form on load
+            let showDocumentForm = false;
+
+            {% if request.session.otp_form %}
+               
+                 showOtpForm = true; 
+            
+            {% endif %}
+
+             {% if request.session.user_email %}
+               
+                 showDocumentForm = true; 
+
+            {% endif %}
+
+
+            // --- MODAL CONTROLS ---
+            const signupModal = document.getElementById('signupModal');
+            const loginModal = document.getElementById('loginModal');
+            const otpModal = document.getElementById('otpModal');
+            const documentModal = document.getElementById('documentModal');
+            
+            const signupBtn = document.getElementById('signupBtn');
+            const heroSignupBtn = document.getElementById('heroSignupBtn');
+            const loginBtn = document.getElementById('loginBtn');
+            const closeBtns = document.querySelectorAll('.close-btn');
+
+            if (showOtpForm) otpModal.classList.add('active');
+            if (showDocumentForm) documentModal.classList.add('active');
+
+            signupBtn.addEventListener('click', () => signupModal.classList.add('active'));
+            heroSignupBtn.addEventListener('click', () => signupModal.classList.add('active'));
+            loginBtn.addEventListener('click', () => loginModal.classList.add('active'));
+
+            closeBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    btn.closest('.modal-overlay').classList.remove('active');
+                });
+            });
+
+            // --- FORM VALIDATION LOGIC ---
+            function setupFormValidation(formId, rules) {
+                const form = document.getElementById(formId);
+                if (!form) return;
+
+                const inputs = form.querySelectorAll('input[required], select[required]');
+
+                function validateField(input) {
+                    const rule = rules[input.name];
+                    if (!rule) return true;
+
+                    let isValid = true;
+                    let errorMessage = '';
+                    const value = input.value.trim();
+                    let errorEl = input.parentElement.querySelector('.error-message');
+                     if(input.type === 'file') {
+                        errorEl = input.parentElement.parentElement.querySelector('.error-message');
+                    }
+
+                    if (rule.required && (input.type === 'file' ? input.files.length === 0 : value === '')) {
+                        isValid = false;
+                        errorMessage = rule.message;
+                    } else if (rule.pattern && !rule.pattern.test(value)) {
+                        isValid = false;
+                        errorMessage = rule.message;
+                    } else if (rule.minLength && value.length < rule.minLength) {
+                        isValid = false;
+                        errorMessage = rule.message;
+                    } else if (rule.match) {
+                        const matchInput = form.querySelector(`#${rule.match}`);
+                        if (value !== matchInput.value) {
+                            isValid = false;
+                            errorMessage = rule.message;
+                        }
+                    }
+                    
+                    if (errorEl) {
+                        errorEl.textContent = errorMessage;
+                        errorEl.style.display = isValid ? 'none' : 'block';
+                    }
+                    input.classList.toggle('invalid', !isValid);
+                    return isValid;
+                }
+                
+                inputs.forEach(input => {
+                    input.addEventListener('blur', () => validateField(input));
+                    if(input.tagName === 'SELECT' || input.type === 'file') {
+                        input.addEventListener('change', () => validateField(input));
+                    }
+                });
+
+                form.addEventListener('submit', (e) => {
+                    let isFormValid = true;
+                    inputs.forEach(input => {
+                        if (!validateField(input)) {
+                            isFormValid = false;
+                        }
+                    });
+
+                    if (!isFormValid) {
+                        e.preventDefault();
+                    }
+                });
+            }
+
+            // Validation rules
+            const signupRules = {
+                first_name: { required: true, message: "First name is required." },
+                last_name: { required: true, message: "Last name is required." },
+                email: { required: true, pattern: /^\S+@\S+\.\S+$/, message: "Please enter a valid email." },
+                mobile: { required: true, pattern: /^[0-9]{10}$/, message: "Enter a 10-digit mobile number." },
+                address: { required: true, message: "Address is required." },
+                city: { required: true, message: "City is required." },
+                pincode: { required: true, pattern: /^[0-9]{6}$/, message: "Enter a 6-digit pincode." },
+                profileImage: { required: true, message: "Profile image is required." },
+                password: { required: true, minLength: 8, message: "Password must be at least 8 characters." },
+                confirm_password: { required: true, match: 'password', message: "Passwords do not match." }
+            };
+            const loginRules = {
+                email: { required: true, pattern: /^\S+@\S+\.\S+$/, message: "Please enter a valid email." },
+                password: { required: true, message: "Password is required." }
+            };
+            const otpRules = {
+                otp: { required: true, pattern: /^[0-9]{6}$/, message: "Please enter the 6-digit OTP." }
+            };
+            const documentRules = {
+                id_proof_type: { required: true, message: "Please select a document type." },
+                id_proof_file: { required: true, message: "Please upload your ID proof." },
+                address_proof_type: { required: true, message: "Please select a document type." },
+                address_proof_file: { required: true, message: "Please upload your address proof." }
+            };
+
+            setupFormValidation('sellerSignupForm', signupRules);
+            setupFormValidation('sellerLoginForm', loginRules);
+            setupFormValidation('otpForm', otpRules);
+            setupFormValidation('documentForm', documentRules);
+
+            // --- IMAGE & DOCUMENT PREVIEW LOGIC ---
+            function setupPreview(inputId, previewId) {
+                const fileInput = document.getElementById(inputId);
+                const preview = document.getElementById(previewId);
+                if (fileInput && preview) {
+                    fileInput.addEventListener('change', () => {
+                        const file = fileInput.files[0];
+                        if (file) {
+                            if (file.type.startsWith('image/')) {
+                                const reader = new FileReader();
+                                reader.onload = (event) => {
+                                    preview.src = event.target.result;
+                                };
+                                reader.readAsDataURL(file);
+                            } else {
+                                // Show a generic icon for non-image files like PDFs
+                                preview.src = "https://placehold.co/60x60/eef2ff/333?text=FILE";
+                            }
+                        }
+                    });
+                }
+            }
+
+            setupPreview('profileImage', 'profileImagePreview');
+            setupPreview('idProofFile', 'idProofPreview');
+            setupPreview('addressProofFile', 'addressProofPreview');
+            
+            // --- OTP FORM LOGIC ---
+            const resendBtn = document.getElementById('resendOtpBtn');
+            let timerInterval;
+
+            function startOtpTimer() {
+                let timeLeft = 30;
+                const timerEl = document.getElementById('otpTimer');
+                const timerContainer = timerEl.parentElement;
+                
+                resendBtn.disabled = true;
+                timerEl.textContent = timeLeft;
+                
+                clearInterval(timerInterval);
+                timerInterval = setInterval(() => {
+                    timeLeft--;
+                    timerEl.textContent = timeLeft;
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        resendBtn.disabled = false;
+                        timerContainer.innerHTML = `Didn't receive the code?`;
+                    }
+                }, 1000);
+            }
+
+            if (showOtpForm) {
+                startOtpTimer();
+            }
+
+            resendBtn.addEventListener('click', () => {
+                 // In a real app, you would make an API call to resend the OTP here
+                const timerContainer = document.querySelector('.otp-timer');
+                if (timerContainer) {
+                    timerContainer.innerHTML = `Resend OTP in <span id="otpTimer">30</span>s`;
+                    startOtpTimer();
+                }
+            });
+
+        });
+    </script>
+</html>

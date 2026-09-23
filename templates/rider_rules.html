@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rider Guidelines - QuicklyCart</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root{--primary:#007BFF;--bg:#f8fafc;--surface:#fff;--border:#e5e7eb;--radius:12px}
+        body{background:var(--bg);margin:0;font-family:'Poppins',sans-serif;color:#111827}
+        .container{max-width:900px;margin:20px auto;padding:0 16px}
+        .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 6px 20px rgba(0,0,0,.06)}
+        .card-header{padding:20px;background:var(--primary);color:#fff;text-align:center}
+        .card-header h2{margin:10px 0 0}
+        .card-body{padding:20px;line-height:1.7}
+        .badge{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:700;font-size:.9rem}
+        .badge.pending{background:#fef9c3;color:#92400e;border:1px solid #fde68a}
+        .badge.approved{background:#dcfce7;color:#166534;border:1px solid #86efac}
+        ul{padding-left:18px}
+    </style>
+</head>
+<body>
+    {% include 'partials/navbar.html' %}
+    <div class="container">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-clipboard-list" style="font-size:2rem"></i><h2>Rider Guidelines</h2></div>
+            <div class="card-body">
+                {% if status %}
+                    {% if status|lower == 'approved' %}
+                        <div class="badge approved">Approved</div>
+                        <p style="margin-top:10px">Your rider account is approved. You can now start deliveries from the Delivery panel. Visit your profile to review your submitted details.</p>
+                        <p><a href="/profile" style="color:#007BFF;text-decoration:none;font-weight:700">Go to Profile</a></p>
+                    {% else %}
+                        <div class="badge pending">Pending Approval</div>
+                        <p style="margin-top:10px">Your rider application is submitted and pending admin approval. You will be able to access the delivery app once approved.</p>
+                        <p>Meanwhile, review the guidelines below.</p>
+                    {% endif %}
+                {% elif is_verified %}
+                    <div class="badge pending">Email Verified</div>
+                    <p style="margin-top:10px">Your email has been verified successfully! Your rider application is now submitted for admin approval.</p>
+                    <p>You will receive an email notification once your application is reviewed. Meanwhile, review the guidelines below.</p>
+                {% else %}
+                    <div class="badge pending">Not Registered</div>
+                    <p style="margin-top:10px">We couldn't find a rider application linked to your session. Please submit your details first.</p>
+                    <p><a href="/becomeRider" style="color:#007BFF;text-decoration:none;font-weight:700">Open Rider Registration</a></p>
+                {% endif %}
+
+                <p style="margin-top:16px">Welcome to QuicklyCart! Please read and follow these rules to keep our deliveries safe and on time:</p>
+                <ul>
+                    <li>Always wear a helmet and obey traffic laws.</li>
+                    <li>Carry a valid Driving Licence and vehicle RC.</li>
+                    <li>Keep your app notifications on for real-time updates.</li>
+                    <li>Be polite with customers and vendors.</li>
+                    <li>Report issues to support immediately.</li>
+                </ul>
+                <p style="margin-top:16px">Once your account is approved by Admin, you can login using your registered email and password.</p>
+            </div>
+        </div>
+    </div>
+    {% include 'footer.html' %}
+</body>
+</html>
+
+

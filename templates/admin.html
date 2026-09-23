@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - QuicklyCart</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007BFF;
+            --primary-hover-color: #0056b3;
+            --secondary-color: #343a40;
+            --background-color: #f4f7f6;
+            --surface-color: #FFFFFF;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+            --border-radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--background-color); }
+        .dashboard-layout { display: flex; height: 100vh; }
+        .sidebar {
+            width: 260px;
+            background-color: #1e293b;
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar .logo { color: white; margin-bottom: 30px; text-align: center; font-size: 1.5rem; font-weight: 700;}
+        .sidebar .logo span { color: var(--primary-color); }
+        .sidebar-nav ul { list-style: none; }
+        .sidebar-nav ul li a {
+            color: #cbd5e1;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .sidebar-nav ul li a:hover, .sidebar-nav ul li a.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .sidebar-nav ul li a i { width: 20px; text-align: center; }
+        .main-content { flex-grow: 1; padding: 30px; overflow-y: auto; }
+        .content-section { display: none; }
+        .content-section.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+        }
+        .stats-card { 
+            background: var(--surface-color);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .stats-card .icon-wrapper {
+            font-size: 1.8rem;
+            padding: 20px;
+            border-radius: 50%;
+            color: white;
+        }
+        .stats-card .icon-revenue { background: var(--primary-color); }
+        .stats-card .icon-orders { background: var(--success-color); }
+        .stats-card .icon-users { background: var(--warning-color); }
+        .stats-card .icon-riders { background: var(--info-color); }
+        .stats-card .icon-pending { background: var(--danger-color); }
+        .stats-card h4 { font-size: 1rem; color: #777; margin-bottom: 5px; font-weight: 500;}
+        .stats-card p { font-size: 2rem; font-weight: 700; }
+
+        .card {
+            background: var(--surface-color);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            margin-top: 30px;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .card-header h3 { margin: 0; }
+        .filter-buttons { display: flex; gap: 10px; }
+        .filter-btn { padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 20px; background: transparent; cursor: pointer; font-weight: 500; transition: all 0.3s; }
+        .filter-btn.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); }
+
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        .data-table th { background: #f8f9fa; font-weight: 600; }
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        .status-active, .status-approved, .status-online { background-color: #e7f7ef; color: #28a745; }
+        .status-suspended, .status-rejected { background-color: #fdecea; color: #dc3545; }
+        .status-pending, .status-offline { background-color: #fff4e6; color: #ffc107; }
+
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; border: 1px solid var(--primary-color); border-radius: 8px; background-color: var(--primary-color); color: white; font-weight: 600; text-decoration: none; cursor: pointer; transition: all 0.3s ease; }
+        .btn:hover { background-color: var(--primary-hover-color); border-color: var(--primary-hover-color); }
+        .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+        .btn-success { background-color: var(--success-color); border-color: var(--success-color); }
+        .btn-danger { background-color: var(--danger-color); border-color: var(--danger-color); }
+        .btn-warning { background-color: var(--warning-color); border-color: var(--warning-color); color: #333; }
+        .btn-outline { background: transparent; color: var(--secondary-color); border-color: var(--border-color); }
+        .btn-outline:hover { background-color: #f8f9fa; }
+        .action-buttons { display: flex; gap: 8px; }
+
+        .chart-container {
+            height: 350px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            border-radius: var(--border-radius);
+            font-style: italic;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Modal Styles */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 2000; }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: var(--surface-color);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 600px;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h3 { margin: 0; }
+        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+        .doc-list li { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+        .doc-list li:last-child { border-bottom: none; }
+        .doc-list .doc-name a { color: var(--primary-color); text-decoration: none; font-weight: 500; cursor: pointer; }
+        .doc-list .doc-name a:hover { text-decoration: underline; }
+        .doc-actions { display: flex; align-items: center; gap: 10px; }
+        .doc-actions .btn-sm { padding: 4px 10px; font-size: 0.8rem; }
+        .rejection-reason { margin-top: 20px; }
+        .rejection-reason label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .rejection-reason textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); min-height: 80px; }
+        .modal-footer { margin-top: 25px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-footer .actions { display: flex; gap: 10px; }
+
+        /* Document Viewer Modal */
+        #docViewerModal .modal-content {
+            max-width: 480px;
+            width: 90%;
+        }
+        #docViewerModal img {
+            max-width: 100%;
+            max-height: 60vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        /* --- CATEGORY STYLES (from seller.html) --- */
+        .form-group { display: flex; flex-direction: column; margin-bottom: 18px; }
+        .form-group label { margin-bottom: 8px; font-weight: 600; }
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 13px 14px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: #f9fafb;
+            transition: border 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            background: #fff;
+        }
+        .hidden { display: none !important; }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 22px;
+        }
+        .category-card {
+            background: var(--surface-color);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .category-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .category-card-header h4 { margin: 0; font-size: 1.13rem; font-weight: 700; }
+        .category-card-body { padding: 16px 20px; }
+        .subcategory-list { list-style: none; padding: 0; }
+        .subcategory-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-radius: 8px;
+        }
+        .subcategory-item:hover { background: #f4f7f6; }
+        
+        .filters-toolbar {
+            display: flex;
+            gap: 18px;
+            margin-bottom: 22px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            align-items: center;
+        }
+        .filters-toolbar .form-group { flex-grow: 1; margin-bottom: 0; }
+
+        .category-image-uploader {
+            margin-top: 15px;
+            border: 2px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s, background-color 0.3s;
+        }
+        .category-image-uploader:hover {
+            border-color: var(--primary-color);
+            background-color: #f4f7f6;
+        }
+        .category-image-uploader .upload-icon {
+            font-size: 2rem;
+            color: #9ca3af;
+            margin-bottom: 10px;
+        }
+        #categoryImagePreview {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Confirmation Modal Styles */
+        .confirmation-modal .modal-content {
+            max-width: 400px;
+            text-align: center;
+        }
+        .confirmation-modal .modal-header .fas {
+            font-size: 2.5rem;
+            color: var(--warning-color);
+            margin-bottom: 10px;
+        }
+        .confirmation-modal .modal-body {
+            padding: 20px;
+        }
+        .confirmation-modal .modal-footer {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 0 20px 20px;
+        }
+
+        /* Report Section Styles */
+        .report-options {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        .report-options h4 {
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+        .format-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        .format-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+            background-color: #f8f9fa;
+            color: var(--secondary-color);
+            border: 1px solid var(--border-color);
+        }
+        .format-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        .format-btn i {
+            font-size: 1.2rem;
+        }
+        .filter-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .preview-container {
+            background: #f8f9fa;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            min-height: 200px;
+            padding: 20px;
+        }
+        .preview-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 160px;
+            color: #6c757d;
+            text-align: center;
+        }
+        .preview-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        .report-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        {% csrf_token %}
+        <aside class="sidebar">
+            <div class="logo">Admin<span>Panel</span></div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#dashboard" class="nav-link active"><i class="fas fa-chart-pie"></i> Dashboard</a></li>
+                    <li><a href="#users" class="nav-link"><i class="fas fa-users"></i> Users</a></li>
+                    <li><a href="#sellers" class="nav-link"><i class="fas fa-store"></i> Sellers</a></li>
+                    <li><a href="#categories" class="nav-link"><i class="fas fa-sitemap"></i> Categories</a></li>
+                    <li><a href="#riders" class="nav-link"><i class="fas fa-motorcycle"></i> Riders</a></li>
+                    <li><a href="#reports" class="nav-link"><i class="fas fa-file-alt"></i> Reports</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <section id="dashboard" class="content-section active">
+                <h2>Platform Overview</h2>
+                <div class="stats-grid" style="margin-top: 20px;">
+                    <div class="stats-card"><div class="icon-wrapper icon-users"><i class="fas fa-user-plus"></i></div><div><h4>Total Users</h4><p>{{ stats.total_users }}</p></div></div>
+                    <div class="stats-card"><div class="icon-wrapper icon-orders"><i class="fas fa-store"></i></div><div><h4>Total Sellers</h4><p>{{ stats.total_sellers }}</p></div></div>
+                    <div class="stats-card"><div class="icon-wrapper icon-riders"><i class="fas fa-biking"></i></div><div><h4>Total Riders</h4><p>{{ stats.total_riders }}</p></div></div>
+                    <div class="stats-card"><div class="icon-wrapper icon-pending"><i class="fas fa-user-clock"></i></div><div><h4>Pending Approvals</h4><p>{{ stats.pending_sellers }}</p></div></div>
+                </div>
+                <div class="card">
+                    <h3>Sales Analytics (Last 30 Days)</h3>
+                    <div class="chart-container">
+                        (A JavaScript charting library like Chart.js would render a sales graph here)
+                    </div>
+                </div>
+            </section>
+
+            <section id="users" class="content-section">
+                <div class="card">
+                    <div class="card-header"><h3>Manage Users</h3></div>
+                     <table class="data-table">
+                        <thead><tr><th>User ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>USR{{ user.user_id|stringformat:"03d" }}</td>
+                                <td>{{ user.first_name }} {{ user.last_name }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.mobile }}</td>
+                                <td>
+                                    {% if user.is_verified %}
+                                        <span class="status-badge status-active">Active</span>
+                                    {% else %}
+                                        <span class="status-badge status-pending">Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td class="action-buttons">
+                                    <button class="btn btn-sm btn-danger delete-user-btn" data-user-id="{{ user.user_id }}">Delete</button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 40px; color: #6c757d;">
+                                    <i class="fas fa-users" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                                    No users found
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="sellers" class="content-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Manage Sellers</h3>
+                        <div class="filter-buttons" id="sellerFilters">
+                            <button class="filter-btn active" data-filter="all">All</button>
+                            <button class="filter-btn" data-filter="Pending">Pending</button>
+                            <button class="filter-btn" data-filter="Approved">Approved</button>
+                            <button class="filter-btn" data-filter="Rejected">Rejected</button>
+                        </div>
+                    </div>
+                     <table class="data-table">
+                        <thead><tr><th>Seller ID</th><th>Store Name</th><th>Owner</th><th>Date Applied</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody id="sellersTable">
+                            {% for seller in sellers %}
+                            <tr data-status="{{ seller.status }}" data-seller-id="{{ seller.seller_id }}" data-verification="" data-reject-reason="">
+                                <td>SEL{{ seller.seller_id|stringformat:"03d" }}</td>
+                                <td>{{ seller.name }}</td>
+                                <td>{{ seller.user_id.first_name }} {{ seller.user_id.last_name }}</td>
+                                <td>{{ seller.created|date:"Y-m-d" }}</td>
+                                <td>
+                                    {% if seller.status == 'Approved' %}
+                                        <span class="status-badge status-approved">Approved</span>
+                                    {% elif seller.status == 'Rejected' %}
+                                        <span class="status-badge status-rejected">Rejected</span>
+                                    {% else %}
+                                        <span class="status-badge status-pending">Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td class="action-buttons">
+                                    {% if seller.status == 'Pending' %}
+                                        <button class="btn btn-sm view-docs" 
+                                                data-seller-id="{{ seller.seller_id }}" 
+                                                data-seller-name="{{ seller.name }}"
+                                                data-documents="{{ seller.documents|escape }}">
+                                            Verify Docs
+                                        </button>
+                                    {% else %}
+                                        <button class="btn btn-sm view-seller-details" 
+                                                data-seller-id="{{ seller.seller_id }}"
+                                                data-seller-name="{{ seller.name }}"
+                                                data-documents="{{ seller.documents|escape }}">
+                                            View
+                                        </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 40px; color: #6c757d;">
+                                    <i class="fas fa-store" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                                    No sellers found
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- CATEGORIES SECTION (MOVED FROM SELLER) -->
+           <section id="categories" class="content-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Manage Categories</h3>
+                        <button class="btn" id="showAddCategoryModalBtn"><i class="fas fa-plus"></i> Add New Category</button>
+                    </div>
+                    <div class="filters-toolbar">
+                        <div class="form-group">
+                            <input type="text" id="categorySearchInput" placeholder="Search categories...">
+                        </div>
+                    </div>
+                    
+                    <div class="category-grid" id="categoryGrid">
+                        
+                        {% for main_cat in category %}
+                            {% if not main_cat.parent_id %}
+                                <div class="category-card" data-category-id="{{ main_cat.id }}" data-name="{{ main_cat.name }}">
+                                    <div class="category-card-header">
+                                        <h4>{{ main_cat.name }}</h4>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-sm btn-outline edit-cat-btn" 
+                                                    data-id="{{ main_cat.id }}" 
+                                                    data-name="{{ main_cat.name }}" 
+                                                    data-image="{% if main_cat.image and main_cat.image.strip %}/static/images/{{ main_cat.image }}{% endif %}" 
+                                                    data-type="main">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-danger delete-cat-btn" 
+                                                    data-id="{{ main_cat.id }}" 
+                                                    data-type="main">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="category-card-body">
+                                        <ul class="subcategory-list">
+                                            {% for sub_cat in category %}
+                                                {% if sub_cat.parent_id == main_cat.id %}
+                                                    <li class="subcategory-item" data-id="{{ sub_cat.id }}" data-name="{{ sub_cat.name }}" data-parent-id="{{ main_cat.id }}">
+                                                        <span>{{ sub_cat.name }}</span>
+                                                        <div class="action-buttons">
+                                                            <button class="btn btn-sm btn-outline edit-cat-btn" 
+                                                                    data-id="{{ sub_cat.id }}" 
+                                                                    data-name="{{ sub_cat.name }}" 
+                                                                    data-parent-id="{{ main_cat.id }}" 
+                                                                    data-type="sub">
+                                                                <i class="fas fa-edit"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-danger delete-cat-btn" 
+                                                                    data-id="{{ sub_cat.id }}" 
+                                                                    data-type="sub">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+
+                    </div>
+                    </div>
+            </section>
+
+            <section id="riders" class="content-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Manage Delivery Riders</h3>
+                        <div class="filter-buttons" id="riderFilters">
+                            <button class="filter-btn active" data-filter="all">All</button>
+                            <button class="filter-btn" data-filter="pending">Pending</button>
+                            <button class="filter-btn" data-filter="approved">Approved</button>
+                        </div>
+                    </div>
+                     <table class="data-table">
+                        <thead><tr><th>Rider ID</th><th>Name</th><th>Phone</th><th>Date Applied</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody id="ridersTable">
+                            {% for rider in stats.riders %}
+                            <tr data-status="{{ rider.status|lower }}" data-rider-id="{{ rider.rider_id }}" data-rider-documents="{{ rider.documents|escape }}" data-rider-name="{{ rider.user_id.first_name }} {{ rider.user_id.last_name }}" data-verification="" data-reject-reason="">
+                                <td>RID{{ rider.rider_id|stringformat:"03d" }}</td>
+                                <td>{{ rider.user_id.first_name }} {{ rider.user_id.last_name }}</td>
+                                <td>{{ rider.user_id.mobile }}</td>
+                                <td>{{ rider.created|date:"Y-m-d" }}</td>
+                                <td>
+                                    {% if rider.status == 'Approved' %}
+                                        <span class="status-badge status-approved">Approved</span>
+                                    {% elif rider.status == 'Rejected' %}
+                                        <span class="status-badge status-rejected">Rejected</span>
+                                    {% else %}
+                                        <span class="status-badge status-pending">Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td class="action-buttons">
+                                    {% if rider.status == 'Pending' %}
+                                        <button class="btn btn-sm view-rider-docs">Verify Docs</button>
+                                    {% else %}
+                                        <button class="btn btn-sm btn-outline view-rider-btn">View</button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 40px; color: #6c757d;">
+                                    <i class="fas fa-biking" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                                    No riders registered yet
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="reports" class="content-section">
+                <div class="card">
+                    <div class="card-header"><h3>Generate Reports</h3></div>
+                    
+                    <div class="report-options">
+                        <div class="report-format-selection">
+                            <h4>Select Report Format</h4>
+                            <div class="format-buttons">
+                                <button class="btn format-btn active" data-format="pdf">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </button>
+                                <button class="btn format-btn" data-format="excel">
+                                    <i class="fas fa-file-excel"></i> EXCEL
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="report-content-selection">
+                            <h4>Select Report Content</h4>
+                            <div class="content-options">
+                                <div class="form-group">
+                                    <select id="reportContentType" class="form-control">
+                                        <option value="" selected disabled>Select data to include</option>
+                                        <option value="users">Users</option>
+                                        <option value="sellers">Sellers</option>
+                                        <option value="riders">Riders</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="report-filters">
+                            <h4>Apply Filters</h4>
+                            <div class="filter-options">
+                                <div class="form-group">
+                                    <label for="startDate">Start Date</label>
+                                    <input type="date" id="startDate" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="endDate">End Date</label>
+                                    <input type="date" id="endDate" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label for="searchFilter">Search</label>
+                                    <input type="text" id="searchFilter" class="form-control" placeholder="Search by name, email, etc.">
+                                </div>
+                                
+                                <!-- Status filter - shows conditionally based on content type -->
+                                <div class="form-group status-filter users-filter hidden">
+                                    <label for="userStatus">Status</label>
+                                    <select id="userStatus" class="form-control">
+                                        <option value="all">All</option>
+                                        <option value="active">Active</option>
+                                        <option value="pending">Pending</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group status-filter sellers-filter hidden">
+                                    <label for="sellerStatus">Status</label>
+                                    <select id="sellerStatus" class="form-control">
+                                        <option value="all">All</option>
+                                        <option value="approved">Approved</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="rejected">Rejected</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group status-filter riders-filter hidden">
+                                    <label for="riderStatus">Status</label>
+                                    <select id="riderStatus" class="form-control">
+                                        <option value="all">All</option>
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="report-preview">
+                            <h4>Report Preview</h4>
+                            <div class="preview-container">
+                                <div class="preview-placeholder">
+                                    <i class="fas fa-file-alt"></i>
+                                    <p>Select content type and apply filters to preview report data</p>
+                                </div>
+                                <div class="preview-data hidden">
+                                    <!-- Preview data will be loaded here -->
+                                    <table class="data-table">
+                                        <thead id="previewTableHead">
+                                            <!-- Headers will be dynamically generated -->
+                                        </thead>
+                                        <tbody id="previewTableBody">
+                                            <!-- Data will be dynamically loaded -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="report-actions">
+                            <button id="generateReportBtn" class="btn btn-success" disabled>
+                                <i class="fas fa-download"></i> Download Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODALS -->
+
+    <!-- Report Download Modal -->
+    <div id="reportDownloadModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Download Report</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Your report is being generated. Click the button below to download.</p>
+                <div style="text-align: center; margin-top: 20px;">
+                    <i class="fas fa-file-download" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 15px;"></i>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="downloadReportBtn" class="btn btn-success">
+                    <i class="fas fa-download"></i> Download
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Verification Modal -->
+    <div id="docModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Verify Documents</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <ul class="doc-list" id="docList">
+                    <!-- Documents will be injected here -->
+                </ul>
+                <div class="rejection-reason" id="rejectionSection" style="display: none;">
+                    <label for="rejectionMessage">Rejection Reason</label>
+                    <textarea id="rejectionMessage" placeholder="Provide a reason for rejection..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline modal-close">Close</button>
+                <div class="actions">
+                    <button class="btn btn-danger" id="rejectBtn">Reject Application</button>
+                    <button class="btn btn-success" id="approveBtn">Approve Application</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Viewer Modal -->
+    <div id="docViewerModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="docViewerTitle">Document Viewer</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <img id="docViewerImage" src="" alt="Document Preview">
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD/EDIT CATEGORY MODAL (MOVED FROM SELLER) -->
+    <div id="categoryModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header"><h3 id="categoryModalTitle">Add New Category</h3><button class="modal-close">&times;</button></div>
+            <form id="manageCategoryForm" method="post" enctype="multipart/form-data" action="{% url 'add_category' %}">
+               {% csrf_token %}
+                <input type="hidden" name="edit_id" id="editCategoryId">
+                <div class="form-group">
+                    <label for="categoryTypeSelect">Type</label>
+                    <select name="type" id="categoryTypeSelect" required>
+                        <option value="main">Main Category</option>
+                        <option value="sub">Sub-Category</option>
+                    </select>
+                </div>
+                <div class="form-group hidden" id="parentCategoryGroup">
+                    <label for="parentCategorySelect">Parent Category</label>
+                    <select name="parent" id="parentCategorySelect">
+                        <option value="">-- Select Parent --</option>
+                        <!-- Options will be populated by JS -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="newCategoryName" id="newCategoryNameLabel">Name</label>
+                    <input type="text" name="name" id="newCategoryName" required>
+                </div>
+                <div class="form-group">
+                    <label for="categoryImageInput">Category Image (Optional)</label>
+                    <div class="category-image-uploader" id="categoryImageUploader">
+                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                        <p>Click to upload an image</p>
+                    </div>
+                    <input type="file" name="image" id="categoryImageInput" accept="image/*" style="display:none;">
+                    <img src="" alt="Category Preview" id="categoryImagePreview" style="display: none;">
+                </div>
+                <div style="margin-top: 20px; text-align: right; display:flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-outline modal-close">Cancel</button>
+                    <button type="submit" class="btn" id="saveCategoryBtn">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- CONFIRMATION MODAL (MOVED FROM SELLER) -->
+    <div id="confirmationModal" class="modal-overlay confirmation-modal">
+        <div class="modal-content">
+            <div class="modal-header" style="flex-direction: column; border: none;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Are you sure?</h3>
+            </div>
+            <div class="modal-body">
+                <p id="confirmationMessage">Do you really want to delete this? This process cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" id="cancelConfirmBtn">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('.content-section');
+            
+            // Verification Modal Elements
+            const docModal = document.getElementById('docModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const docList = document.getElementById('docList');
+            const rejectionSection = document.getElementById('rejectionSection');
+            const rejectionMessage = document.getElementById('rejectionMessage');
+            const approveBtn = document.getElementById('approveBtn');
+            const rejectBtn = document.getElementById('rejectBtn');
+
+            // Document Viewer Modal Elements
+            const docViewerModal = document.getElementById('docViewerModal');
+            const docViewerTitle = document.getElementById('docViewerTitle');
+            const docViewerImage = document.getElementById('docViewerImage');
+
+            // Main navigation
+            navLinks.forEach(link => {
+                link.addEventListener('click', e => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href').substring(1);
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    sections.forEach(s => s.classList.remove('active'));
+                    document.getElementById(targetId).classList.add('active');
+                });
+            });
+
+            // Filtering logic
+            function setupFilter(filterContainerId, tableBodyId) {
+                const filterButtons = document.querySelectorAll(`#${filterContainerId} .filter-btn`);
+                const tableRows = document.querySelectorAll(`#${tableBodyId} tr`);
+
+                filterButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        filterButtons.forEach(btn => btn.classList.remove('active'));
+                        button.classList.add('active');
+                        const filter = button.dataset.filter;
+
+                        tableRows.forEach(row => {
+                            if (filter === 'all' || row.dataset.status === filter) {
+                                row.style.display = '';
+                            } else {
+                                row.style.display = 'none';
+                            }
+                        });
+                    });
+                });
+            }
+
+            setupFilter('sellerFilters', 'sellersTable');
+            setupFilter('riderFilters', 'ridersTable');
+
+            // Modal logic for verification
+            document.body.addEventListener('click', e => {
+                // Rider: open Verify Docs modal
+                const viewRiderDocsBtn = e.target.closest('.view-rider-docs');
+                if (viewRiderDocsBtn) {
+                    const row = viewRiderDocsBtn.closest('tr');
+                    const riderId = row.dataset.riderId;
+                    const riderName = row.dataset.riderName || `RID${String(riderId).padStart(3,'0')}`;
+                    const documentsData = row.dataset.riderDocuments || '[]';
+
+                    modalTitle.textContent = `Verify Documents for ${riderName}`;
+                    rejectionSection.style.display = 'none';
+                    rejectionMessage.value = '';
+
+                    let documents = [];
+                    try {
+                        let parsedDocs = JSON.parse(documentsData);
+                        if (Array.isArray(parsedDocs)) {
+                            documents = parsedDocs.map(d => {
+                                const key = Object.keys(d)[0] || '';
+                                const val = d[key] || '';
+                                const isFile = key.endsWith('_file');
+                                const label = key.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+                                return { name: label, status: 'Pending', url: isFile && val ? `/static/images/${val}` : '', fileName: val };
+                            }).filter(x => x.url);
+                        }
+                    } catch (_) {
+                        try {
+                            const fixed = (documentsData || '').replace(/&quot;/g,'"').replace(/&#x27;/g,"'").replace(/'/g,'"');
+                            const parsedDocs2 = JSON.parse(fixed);
+                            if (Array.isArray(parsedDocs2)) {
+                                documents = parsedDocs2.map(d => {
+                                    const key = Object.keys(d)[0] || '';
+                                    const val = d[key] || '';
+                                    const isFile = key.endsWith('_file');
+                                    const label = key.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+                                    return { name: label, status: 'Pending', url: isFile && val ? `/static/images/${val}` : '', fileName: val };
+                                }).filter(x => x.url);
+                            }
+                        } catch (err) {
+                            documents = [];
+                        }
+                    }
+
+                    if (!documents.length) {
+                        documents = [ { name: 'Document', status: 'Pending', url: '/static/images/placeholder.jpg', fileName: 'placeholder.jpg' } ];
+                    }
+
+                    docList.innerHTML = documents.map(doc => `
+                        <li>
+                            <div class="doc-name">
+                                <a data-doc-url="${doc.url}" data-doc-name="${doc.name}"><i class="fas fa-file-alt"></i> ${doc.name}</a>
+                            </div>
+                            <div class="doc-actions">
+                                <span class="status-badge status-${doc.status.toLowerCase()}">${doc.status}</span>
+                                <button class="btn btn-sm btn-success doc-approve" data-doc-name="${doc.fileName}">Accept</button>
+                                <button class="btn btn-sm btn-danger doc-reject" data-doc-name="${doc.fileName}">Reject</button>
+                            </div>
+                        </li>
+                    `).join('');
+
+                    // Store rider ID for approval/rejection
+                    docModal.dataset.riderId = riderId;
+                    docModal.dataset.sellerId = '';
+                    openModal(docModal);
+                    return;
+                }
+                if (e.target.classList.contains('view-docs')) {
+                    const sellerId = e.target.dataset.sellerId;
+                    const sellerName = e.target.dataset.sellerName;
+                    let documentsData = e.target.dataset.documents || '';
+                    
+                    modalTitle.textContent = `Verify Documents for ${sellerName}`;
+                    rejectionSection.style.display = 'none';
+                    rejectionMessage.value = '';
+                    
+                    // Parse the documents JSON data
+                    let documents = [];
+                    try {
+                        let parsedDocs = JSON.parse(documentsData);
+                        if (Array.isArray(parsedDocs)) {
+                            documents = parsedDocs.map(doc => {
+                                const docType = Object.keys(doc)[0];
+                                const fileName = doc[docType];
+                                return { name: docType.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase()), status: 'Pending', url: `/static/images/${fileName}`, fileName };
+                            });
+                        }
+                    } catch (_) {
+                        try {
+                            const fixed = (documentsData || '').replace(/&quot;/g,'"').replace(/&#x27;/g,"'").replace(/'/g,'"');
+                            const parsedDocs2 = JSON.parse(fixed);
+                            if (Array.isArray(parsedDocs2)) {
+                                documents = parsedDocs2.map(doc => {
+                                    const k = Object.keys(doc)[0];
+                                    const v = doc[k];
+                                    return { name: k.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase()), status: 'Pending', url: v ? `/static/images/${v}` : '', fileName: v };
+                                }).filter(x=>x.url);
+                            }
+                        } catch (err) {
+                            documents = [];
+                        }
+                    }
+
+                    docList.innerHTML = documents.map(doc => `
+                        <li>
+                            <div class="doc-name">
+                                <a data-doc-url="${doc.url}" data-doc-name="${doc.name}"><i class="fas fa-file-alt"></i> ${doc.name}</a>
+                            </div>
+                            <div class="doc-actions">
+                                <span class="status-badge status-${doc.status.toLowerCase()}">${doc.status}</span>
+                                ${doc.status === 'Pending' ? 
+                                    `<button class="btn btn-sm btn-success doc-approve" data-doc-name="${doc.fileName}">Accept</button>
+                                     <button class="btn btn-sm btn-danger doc-reject" data-doc-name="${doc.fileName}">Reject</button>`
+                                : ''}
+                            </div>
+                        </li>
+                    `).join('');
+
+                    // Store seller ID for approval/rejection
+                    docModal.dataset.sellerId = sellerId;
+                    docModal.classList.add('active');
+                    // reset any previous stored state
+                    docModal.dataset.verification = '';
+                    docModal.dataset.rejectReason = '';
+                }
+            });
+
+            // Handle actions within the verification modal
+            docList.addEventListener('click', e => {
+                const target = e.target;
+                
+                // Open document viewer
+                const docLink = target.closest('a[data-doc-url]');
+                if (docLink) {
+                    e.preventDefault();
+                    const docUrl = docLink.dataset.docUrl;
+                    const docName = docLink.dataset.docName;
+                    docViewerTitle.textContent = docName;
+                    docViewerImage.src = docUrl;
+                    docViewerModal.classList.add('active');
+                    return;
+                }
+
+                const approveButton = target.closest('.doc-approve');
+                if (approveButton) {
+                    const actionsContainer = approveButton.parentElement;
+                    actionsContainer.innerHTML = '<span class="status-badge status-approved">Verified</span>';
+                    // record in modal state which file approved
+                    const fileName = approveButton.dataset.docName || '';
+                    const current = (docModal.dataset.verification ? JSON.parse(docModal.dataset.verification) : {});
+                    current[fileName] = 'Approved';
+                    docModal.dataset.verification = JSON.stringify(current);
+                }
+
+                const rejectButton = target.closest('.doc-reject');
+                if (rejectButton) {
+                    const actionsContainer = rejectButton.parentElement;
+                    actionsContainer.innerHTML = '<span class="status-badge status-rejected">Rejected</span>';
+                    const fileName = rejectButton.dataset.docName || '';
+                    const current = (docModal.dataset.verification ? JSON.parse(docModal.dataset.verification) : {});
+                    current[fileName] = 'Rejected';
+                    docModal.dataset.verification = JSON.stringify(current);
+                }
+            });
+            
+            function openModal(modal) {
+                if(modal) modal.classList.add('active');
+            }
+            function closeModal(modal) {
+                 if(modal) modal.classList.remove('active');
+            }
+
+            document.querySelectorAll('.modal-close').forEach(btn => {
+                btn.addEventListener('click', (e) => closeModal(e.target.closest('.modal-overlay')));
+            });
+
+            rejectBtn.addEventListener('click', () => {
+                if (rejectionSection.style.display === 'none') {
+                    rejectionSection.style.display = 'block';
+                } else {
+                    if (rejectionMessage.value.trim() === '') {
+                        alert('Please provide a reason for rejection.');
+                    } else {
+                        const sellerId = docModal.dataset.sellerId;
+                        const riderId = docModal.dataset.riderId;
+                        const rejectionReason = rejectionMessage.value.trim();
+                        
+                        if (sellerId) {
+                            fetch(`/admin/reject-seller/${sellerId}/`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    reason: rejectionReason,
+                                    verification: (docModal.dataset.verification ? JSON.parse(docModal.dataset.verification) : {})
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    alert('Seller rejected successfully');
+                                    // Update the row status
+                                    const row = document.querySelector(`[data-seller-id="${sellerId}"]`).closest('tr');
+                                    const statusCell = row.querySelector('.status-badge');
+                                    statusCell.textContent = 'Rejected';
+                                    statusCell.className = 'status-badge status-rejected';
+                                    
+                                    const actionCell = row.querySelector('.action-buttons');
+                                    actionCell.innerHTML = `<button class="btn btn-sm view-seller-details" data-seller-id="${sellerId}">View</button>`;
+                                    
+                                    // Update row data-status and store decision summary
+                                    row.dataset.status = 'Rejected';
+                                    row.dataset.rejectReason = rejectionReason;
+                                    row.dataset.verification = docModal.dataset.verification || '';
+                                } else {
+                                    alert('Error rejecting seller');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('Error rejecting seller');
+                            });
+                        } else if (riderId) {
+                            fetch(`/admin/reject-rider/${riderId}/`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ reason: rejectionReason, verification: (docModal.dataset.verification ? JSON.parse(docModal.dataset.verification) : {}) })
+                            })
+                            .then(r=>r.json()).then(data=>{
+                                if (data.success) {
+                                    alert('Rider rejected successfully');
+                                    const row = document.querySelector(`[data-rider-id="${riderId}"]`);
+                                    const statusCell = row.querySelector('.status-badge');
+                                    statusCell.textContent = 'Rejected';
+                                    statusCell.className = 'status-badge status-rejected';
+                                    row.dataset.status = 'rejected';
+                                    row.dataset.rejectReason = rejectionReason;
+                                    row.dataset.verification = docModal.dataset.verification || '';
+                                    row.querySelector('.action-buttons').innerHTML = '<button class="btn btn-sm btn-outline view-rider-btn">View</button>';
+                                } else { alert('Error rejecting rider'); }
+                            }).catch(()=>alert('Network error'));
+                        }
+                        closeModal(docModal);
+                    }
+                }
+            });
+
+            approveBtn.addEventListener('click', () => {
+                const sellerId = docModal.dataset.sellerId;
+                const riderId = docModal.dataset.riderId;
+                approveBtn.style.display = 'inline-flex';
+                rejectBtn.style.display = 'inline-flex';
+                if (sellerId) {
+                    fetch(`/admin/approve-seller/${sellerId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            verification: (docModal.dataset.verification ? JSON.parse(docModal.dataset.verification) : {})
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Seller approved successfully');
+                            // Update the row status
+                            const row = document.querySelector(`[data-seller-id="${sellerId}"]`).closest('tr');
+                            const statusCell = row.querySelector('.status-badge');
+                            statusCell.textContent = 'Approved';
+                            statusCell.className = 'status-badge status-approved';
+                            
+                            const actionCell = row.querySelector('.action-buttons');
+                            actionCell.innerHTML = `<button class="btn btn-sm view-seller-details" data-seller-id="${sellerId}">View</button>`;
+                            
+                            // Update row data-status and persist decisions
+                            row.dataset.status = 'Approved';
+                            row.dataset.verification = docModal.dataset.verification || '';
+                            row.dataset.rejectReason = '';
+                        } else {
+                            alert('Error approving seller');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error approving seller');
+                    });
+                } else if (riderId) {
+                    fetch(`/admin/approve-rider/${riderId}/`, {
+                        method: 'POST',
+                        headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ verification: (docModal.dataset.verification ? JSON.parse(docModal.dataset.verification) : {}) })
+                    }).then(r=>r.json()).then(data=>{
+                        if (data.success) {
+                            alert('Rider approved successfully');
+                            const row = document.querySelector(`[data-rider-id="${riderId}"]`);
+                            const statusCell = row.querySelector('.status-badge');
+                            statusCell.textContent = 'Approved';
+                            statusCell.className = 'status-badge status-approved';
+                            row.dataset.status = 'approved';
+                            row.dataset.verification = docModal.dataset.verification || '';
+                            row.dataset.rejectReason = '';
+                            row.querySelector('.action-buttons').innerHTML = '<button class="btn btn-sm btn-outline view-rider-btn">View</button>';
+                        } else { alert('Error approving rider'); }
+                    }).catch(()=>alert('Network error'));
+                }
+                closeModal(docModal);
+                // reset button visibility for next open
+                approveBtn.style.display = 'inline-flex';
+                rejectBtn.style.display = 'inline-flex';
+            });
+            
+            // --- CATEGORY MANAGEMENT LOGIC (MOVED FROM SELLER) ---
+            const confirmationModal = document.getElementById('confirmationModal');
+            const confirmationMessage = document.getElementById('confirmationMessage');
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            const cancelConfirmBtn = document.getElementById('cancelConfirmBtn');
+            let onConfirmCallback = null;
+
+            function showConfirmationModal(message, callback) {
+                confirmationMessage.textContent = message;
+                onConfirmCallback = callback;
+                openModal(confirmationModal);
+            }
+            confirmDeleteBtn.addEventListener('click', () => {
+                if (typeof onConfirmCallback === 'function') onConfirmCallback();
+                onConfirmCallback = null;
+                closeModal(confirmationModal);
+            });
+            cancelConfirmBtn.addEventListener('click', () => {
+                onConfirmCallback = null;
+                closeModal(confirmationModal);
+            });
+            
+            const categoryModal = document.getElementById('categoryModal');
+            const showAddCategoryModalBtn = document.getElementById('showAddCategoryModalBtn');
+
+            const categoryGrid = document.getElementById('categoryGrid');
+            const categorySearchInput = document.getElementById('categorySearchInput');
+            
+            function renderCategories(filter = '') {
+                document.querySelectorAll('.category-card').forEach(card => {
+                    const name = card.dataset.name.toLowerCase();
+                    if (name.includes(filter.toLowerCase())) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+            if(categorySearchInput) categorySearchInput.addEventListener('input', (e) => renderCategories(e.target.value));
+            
+            const categoryImageUploader = document.getElementById('categoryImageUploader');
+            const categoryImageInput = document.getElementById('categoryImageInput');
+            const categoryImagePreview = document.getElementById('categoryImagePreview');
+            
+            if(categoryImageUploader) categoryImageUploader.addEventListener('click', () => categoryImageInput.click());
+            if(categoryImageInput) categoryImageInput.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        categoryImagePreview.src = event.target.result;
+                        categoryImagePreview.style.display = 'block';
+                    }
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+            
+            function openCategoryModalForEdit(editBtn) {
+                const form = document.getElementById('manageCategoryForm');
+                form.reset();
+                
+                const type = editBtn.dataset.type;
+                const id = editBtn.dataset.id;
+                const name = editBtn.dataset.name;
+                const imageUrl = editBtn.dataset.image;
+                const parentId = editBtn.dataset.parentId;
+                
+                console.log('Edit button data:', {
+                    id, name, imageUrl, parentId, type
+                });
+
+                document.getElementById('editCategoryId').value = id;
+                document.getElementById('categoryModalTitle').textContent = 'Edit Category';
+                document.getElementById('newCategoryName').value = name;
+                document.getElementById('categoryTypeSelect').value = type;
+
+                // Reset uploader to default state first
+                const uploader = document.getElementById('categoryImageUploader');
+                uploader.innerHTML = `
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <p>Click to upload an image</p>
+                `;
+                
+                if (imageUrl && imageUrl.trim() !== '') {
+                    // Try different possible image extensions if the original fails
+                    const possibleExtensions = ['', '.jpg', '.jpeg', '.png', '.gif', '.webp'];
+                    let imageLoaded = false;
+                    let currentIndex = 0;
+                    
+                    const tryLoadImage = () => {
+                        if (currentIndex >= possibleExtensions.length) {
+                            // All extensions tried, show error
+                            console.log('Image failed to load with all extensions:', imageUrl);
+                            categoryImagePreview.style.display = 'none';
+                            uploader.innerHTML = `
+                                <i class="fas fa-exclamation-triangle upload-icon" style="color: #ffc107;"></i>
+                                <p>Image not found: ${imageUrl}</p>
+                                <p style="font-size: 0.8rem; color: #666;">Click to upload a new image</p>
+                            `;
+                            return;
+                        }
+                        
+                        const testUrl = imageUrl + possibleExtensions[currentIndex];
+                        console.log('Trying to load image:', testUrl);
+                        
+                        categoryImagePreview.onload = function() {
+                            console.log('Image loaded successfully:', testUrl);
+                            imageLoaded = true;
+                        };
+                        
+                        categoryImagePreview.onerror = function() {
+                            console.log('Failed to load:', testUrl);
+                            currentIndex++;
+                            tryLoadImage();
+                        };
+                        
+                        categoryImagePreview.src = testUrl;
+                    };
+                    
+                    categoryImagePreview.style.display = 'block';
+                    tryLoadImage();
+                } else {
+                    categoryImagePreview.style.display = 'none';
+                }
+
+                const parentGroup = document.getElementById('parentCategoryGroup');
+                const parentSelect = document.getElementById('parentCategorySelect');
+                if (type === 'main') {
+                    parentGroup.classList.add('hidden');
+                    parentSelect.required = false;
+                } else {
+                    populateParentCategorySelect();
+                    parentGroup.classList.remove('hidden');
+                    parentSelect.value = parentId;
+                    parentSelect.required = true;
+                    parentSelect.disabled = true; 
+                }
+                
+                document.getElementById('categoryTypeSelect').disabled = true;
+                openModal(document.getElementById('categoryModal'));
+            }
+
+            if(showAddCategoryModalBtn) showAddCategoryModalBtn.addEventListener('click', () => {
+                const form = document.getElementById('manageCategoryForm');
+                form.reset();
+                document.getElementById('editCategoryId').value = '';
+                document.getElementById('categoryModalTitle').textContent = 'Add New Category';
+                
+                document.getElementById('categoryTypeSelect').disabled = false;
+                document.getElementById('categoryTypeSelect').value = 'main';
+                document.getElementById('parentCategoryGroup').classList.add('hidden');
+                document.getElementById('parentCategorySelect').disabled = false;
+                document.getElementById('parentCategorySelect').required = false;
+                
+                categoryImagePreview.style.display = 'none';
+                categoryImagePreview.src = '';
+                
+                // Reset the uploader to default state
+                const uploader = document.getElementById('categoryImageUploader');
+                uploader.innerHTML = `
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <p>Click to upload an image</p>
+                `;
+                
+                populateParentCategorySelect();
+                openModal(categoryModal);
+            });
+            
+            if(categoryGrid) categoryGrid.addEventListener('click', e => {
+                const editBtn = e.target.closest('.edit-cat-btn');
+                if (editBtn) {
+                    openCategoryModalForEdit(editBtn);
+                }
+                const deleteBtn = e.target.closest('.delete-cat-btn');
+                if (deleteBtn) {
+                    showConfirmationModal('Are you sure you want to delete this category?', () => {
+                        const id = deleteBtn.dataset.id;
+                        const type = deleteBtn.dataset.type;
+                        if (type === 'main') {
+                           const card = document.querySelector(`.category-card[data-category-id="${id}"]`);
+                           if(card) card.remove();
+                        } else {
+                            const item = document.querySelector(`.subcategory-item[data-id="${id}"]`);
+                            if(item) item.remove();
+                        }
+                        // Add an AJAX call here to delete from the server
+                        alert('Category deleted. (Frontend only)');
+                    });
+                }
+            });
+
+            // View read-only summary for rider row
+            document.getElementById('ridersTable').addEventListener('click', (e) => {
+                const viewBtn = e.target.closest('.view-rider-btn');
+                if (!viewBtn) return;
+                const row = viewBtn.closest('tr');
+                const name = row.dataset.riderName || row.children[1]?.textContent || 'Rider';
+                modalTitle.textContent = `Verification Summary for ${name}`;
+                const verification = row.dataset.verification ? JSON.parse(row.dataset.verification) : {};
+                const reason = row.dataset.rejectReason || '';
+                const items = Object.keys(verification).map(fn => {
+                    const status = verification[fn];
+                    const label = fn.replace(/_/g,' ').replace(/\b\w/g, c=>c.toUpperCase());
+                    const cls = status.toLowerCase()==='approved'?'status-approved':'status-rejected';
+                    return `<li><div class="doc-name">${label}</div><div class="doc-actions"><span class="status-badge ${cls}">${status}</span></div></li>`;
+                }).join('');
+                docList.innerHTML = items || '<li><div class="doc-name">No per-document decisions recorded.</div></li>';
+                rejectionSection.style.display = reason ? 'block' : 'none';
+                if (reason) { document.getElementById('rejectionMessage').value = reason; }
+                approveBtn.style.display = 'none';
+                rejectBtn.style.display = 'none';
+                openModal(docModal);
+            });
+
+            // View read-only summary for seller row
+            document.getElementById('sellersTable').addEventListener('click', (e) => {
+                const viewBtn = e.target.closest('.view-seller-details');
+                if (!viewBtn) return;
+                const row = viewBtn.closest('tr');
+                const name = viewBtn.dataset.sellerName || row.children[1]?.textContent || 'Seller';
+                modalTitle.textContent = `Verification Summary for ${name}`;
+                const verification = row.dataset.verification ? JSON.parse(row.dataset.verification) : {};
+                const reason = row.dataset.rejectReason || '';
+                const items = Object.keys(verification).map(fn => {
+                    const status = verification[fn];
+                    const label = fn.replace(/_/g,' ').replace(/\b\w/g, c=>c.toUpperCase());
+                    const cls = status.toLowerCase()==='approved'?'status-approved':'status-rejected';
+                    return `<li><div class=\"doc-name\">${label}</div><div class=\"doc-actions\"><span class=\"status-badge ${cls}\">${status}</span></div></li>`;
+                }).join('');
+                docList.innerHTML = items || '<li><div class="doc-name">No per-document decisions recorded.</div></li>';
+                rejectionSection.style.display = reason ? 'block' : 'none';
+                if (reason) { document.getElementById('rejectionMessage').value = reason; }
+                approveBtn.style.display = 'none';
+                rejectBtn.style.display = 'none';
+                openModal(docModal);
+            });
+
+            function populateParentCategorySelect() {
+                const parentCategorySelect = document.getElementById('parentCategorySelect');
+                parentCategorySelect.innerHTML = '<option value="">-- Select Parent --</option>';
+                document.querySelectorAll('.category-card').forEach(catCard => {
+                    const option = document.createElement('option');
+                    option.value = catCard.dataset.categoryId;
+                    option.textContent = catCard.dataset.name;
+                    parentCategorySelect.appendChild(option);
+                });
+            }
+
+            document.getElementById('categoryTypeSelect').addEventListener('change', (e) => {
+                const type = e.target.value;
+                const parentGroup = document.getElementById('parentCategoryGroup');
+                const parentSelect = document.getElementById('parentCategorySelect');
+                if (type === 'sub') {
+                    parentGroup.classList.remove('hidden');
+                    document.getElementById('newCategoryNameLabel').textContent = 'Sub-Category Name';
+                    parentSelect.required = true;
+                } else {
+                    parentGroup.classList.add('hidden');
+                    document.getElementById('newCategoryNameLabel').textContent = 'Main Category Name';
+                    parentSelect.required = false;
+                }
+            });
+            
+            // Initial call
+            if(categorySearchInput) renderCategories();
+            
+            // User management functionality
+            document.addEventListener('click', function(e) {
+                // Handle delete user
+                if (e.target.classList.contains('delete-user-btn')) {
+                    const userId = e.target.dataset.userId;
+                    showConfirmationModal('Are you sure you want to delete this user? This action cannot be undone.', () => {
+                        // Add AJAX call to delete user
+                        fetch(`/admin/delete-user/${userId}/`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                                'Content-Type': 'application/json',
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Remove row from table
+                                const row = e.target.closest('tr');
+                                row.remove();
+                                alert('User deleted successfully');
+                                
+                                // Update total users count
+                                const totalUsersElement = document.querySelector('.icon-users').parentElement.querySelector('p');
+                                const currentCount = parseInt(totalUsersElement.textContent);
+                                totalUsersElement.textContent = currentCount - 1;
+                            } else {
+                                alert('Error deleting user');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Error deleting user');
+                        });
+                    });
+                }
+            });
+        });
+
+        // Report Section Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Format selection
+            const formatBtns = document.querySelectorAll('.format-btn');
+            let selectedFormat = 'pdf';
+
+            formatBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    formatBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedFormat = this.dataset.format;
+                    updateGenerateButtonState();
+                });
+            });
+
+            // Content type selection
+            const contentTypeSelect = document.getElementById('reportContentType');
+            const statusFilters = document.querySelectorAll('.status-filter');
+            
+            contentTypeSelect.addEventListener('change', function() {
+                // Hide all status filters first
+                statusFilters.forEach(filter => filter.classList.add('hidden'));
+                
+                // Show the relevant status filter based on selection
+                const selectedType = this.value;
+                if (selectedType) {
+                    document.querySelector(`.${selectedType}-filter`).classList.remove('hidden');
+                    
+                    // Generate preview data
+                    generatePreviewData(selectedType);
+                    
+                    // Update download button state
+                    updateGenerateButtonState();
+                }
+            });
+
+            // Date filters
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            const searchFilterInput = document.getElementById('searchFilter');
+            
+            [startDateInput, endDateInput, searchFilterInput].forEach(input => {
+                input.addEventListener('change', function() {
+                    const contentType = contentTypeSelect.value;
+                    if (contentType) {
+                        generatePreviewData(contentType);
+                        updateGenerateButtonState();
+                    }
+                });
+            });
+            
+            searchFilterInput.addEventListener('keyup', function() {
+                const contentType = contentTypeSelect.value;
+                if (contentType) {
+                    generatePreviewData(contentType);
+                    updateGenerateButtonState();
+                }
+            });
+
+            // Status filters
+            const statusSelects = document.querySelectorAll('.status-filter select');
+            statusSelects.forEach(select => {
+                select.addEventListener('change', function() {
+                    const contentType = contentTypeSelect.value;
+                    if (contentType) {
+                        generatePreviewData(contentType);
+                        updateGenerateButtonState();
+                    }
+                });
+            });
+
+            // Generate preview data
+            function generatePreviewData(contentType) {
+                const previewPlaceholder = document.querySelector('.preview-placeholder');
+                const previewData = document.querySelector('.preview-data');
+                const previewTableHead = document.getElementById('previewTableHead');
+                const previewTableBody = document.getElementById('previewTableBody');
+                
+                // Show loading state
+                previewPlaceholder.innerHTML = '<i class="fas fa-spinner fa-spin"></i><p>Loading preview data...</p>';
+                previewPlaceholder.classList.remove('hidden');
+                previewData.classList.add('hidden');
+                
+                // Get filter values
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                const searchTerm = document.getElementById('searchFilter').value.toLowerCase();
+                
+                // Get status filter value based on content type
+                let statusFilter = '';
+                if (contentType === 'users') {
+                    statusFilter = document.getElementById('userStatus').value;
+                } else if (contentType === 'sellers') {
+                    statusFilter = document.getElementById('sellerStatus').value;
+                } else if (contentType === 'riders') {
+                    statusFilter = document.getElementById('riderStatus').value;
+                }
+                
+                // Simulate API call delay
+                setTimeout(() => {
+                    // Generate headers based on content type
+                    let headers = [];
+                    let allData = [];
+                    let filteredData = [];
+                    
+                    switch(contentType) {
+                        case 'users':
+                            headers = ['User ID', 'Name', 'Email', 'Phone', 'Status', 'Joined Date'];
+                            allData = [
+                                ['USR001', 'John Doe', 'john@example.com', '+1234567890', 'Active', '2023-01-15'],
+                                ['USR002', 'Jane Smith', 'jane@example.com', '+1987654321', 'Active', '2023-02-20'],
+                                ['USR003', 'Mike Johnson', 'mike@example.com', '+1122334455', 'Pending', '2023-03-10']
+                            ];
+                            break;
+                        case 'sellers':
+                            headers = ['Seller ID', 'Store Name', 'Owner', 'Status', 'Date Applied', 'Products'];
+                            allData = [
+                                ['SEL001', 'Tech Haven', 'John Doe', 'Approved', '2023-01-10', '45'],
+                                ['SEL002', 'Fashion Hub', 'Jane Smith', 'Pending', '2023-02-15', '0'],
+                                ['SEL003', 'Home Decor', 'Mike Johnson', 'Rejected', '2023-03-05', '0']
+                            ];
+                            break;
+                        case 'riders':
+                            headers = ['Rider ID', 'Name', 'Phone', 'Status', 'Joined Date', 'Deliveries'];
+                            allData = [
+                                ['RID001', 'Alex Brown', '+1234567890', 'Active', '2023-01-20', '156'],
+                                ['RID002', 'Sarah Wilson', '+1987654321', 'Active', '2023-02-25', '89'],
+                                ['RID003', 'Tom Davis', '+1122334455', 'Inactive', '2023-03-15', '32']
+                            ];
+                            break;
+                    }
+                    
+                    // Apply filters
+                    filteredData = allData.filter(row => {
+                        // Status filter (index 4 for users/riders, 3 for sellers)
+                        const statusIndex = contentType === 'sellers' ? 3 : 4;
+                        if (statusFilter && statusFilter !== 'all' && row[statusIndex] !== statusFilter) {
+                            return false;
+                        }
+                        
+                        // Search filter (check name, email, phone)
+                        if (searchTerm) {
+                            const searchableFields = row.join(' ').toLowerCase();
+                            if (!searchableFields.includes(searchTerm)) {
+                                return false;
+                            }
+                        }
+                        
+                        // Date filter could be implemented here if needed
+                        
+                        return true;
+                    });
+                    
+                    // Generate table header
+                    let headerHTML = '<tr>';
+                    headers.forEach(header => {
+                        headerHTML += `<th>${header}</th>`;
+                    });
+                    headerHTML += '</tr>';
+                    previewTableHead.innerHTML = headerHTML;
+                    
+                    // Generate table body
+                    let bodyHTML = '';
+                    if (filteredData.length > 0) {
+                        filteredData.forEach(row => {
+                            bodyHTML += '<tr>';
+                            row.forEach(cell => {
+                                bodyHTML += `<td>${cell}</td>`;
+                            });
+                            bodyHTML += '</tr>';
+                        });
+                    } else {
+                        bodyHTML = `<tr><td colspan="${headers.length}" style="text-align: center; padding: 20px;">No data found</td></tr>`;
+                    }
+                    previewTableBody.innerHTML = bodyHTML;
+                    
+                    // Show preview data
+                    previewPlaceholder.classList.add('hidden');
+                    previewData.classList.remove('hidden');
+                }, 800);
+            }
+
+            // Update generate button state
+            function updateGenerateButtonState() {
+                const generateBtn = document.getElementById('generateReportBtn');
+                const contentType = contentTypeSelect.value;
+                
+                if (contentType) {
+                    generateBtn.disabled = false;
+                } else {
+                    generateBtn.disabled = true;
+                }
+            }
+
+            // Generate report button
+            const generateReportBtn = document.getElementById('generateReportBtn');
+            generateReportBtn.addEventListener('click', function() {
+                const reportDownloadModal = document.getElementById('reportDownloadModal');
+                reportDownloadModal.classList.add('active');
+                
+                // Update download button with format info
+                const downloadBtn = document.getElementById('downloadReportBtn');
+                downloadBtn.innerHTML = `<i class="fas fa-download"></i> Download ${selectedFormat.toUpperCase()}`;
+            });
+
+            // Download report button
+            const downloadReportBtn = document.getElementById('downloadReportBtn');
+            downloadReportBtn.addEventListener('click', function() {
+                const contentType = contentTypeSelect.value;
+                const startDate = startDateInput.value;
+                const endDate = endDateInput.value;
+                
+                // Create a filename based on the report parameters
+                const dateStr = new Date().toISOString().slice(0, 10);
+                const filename = `QuicklyCart_${contentType}_report_${dateStr}.${selectedFormat}`;
+                
+                // Simulate download by creating a temporary link
+                const link = document.createElement('a');
+                link.href = '#';
+                link.download = filename;
+                link.click();
+                
+                // Close the modal
+                document.getElementById('reportDownloadModal').classList.remove('active');
+                
+                // Show success message
+                alert(`Your ${contentType} report has been downloaded as ${filename}`);
+            });
+
+            // Close modal buttons
+            document.querySelectorAll('.modal-close').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.closest('.modal-overlay').classList.remove('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+/* === Google Font Import: Poppins === */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* === CSS Variables (Blue & White Theme) === */
+:root {
+    --primary-color: #007BFF; /* Professional Blue */
+    --primary-hover-color: #0056b3;
+    --secondary-color: #343a40; /* Dark Grey for Text */
+    --background-color: #f8f9fa; /* Light Grey BG */
+    --surface-color: #FFFFFF; /* White for Cards/Headers */
+    --border-color: #dee2e6;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+    --border-radius: 12px;
+}
+
+/* === General Body & Resets === */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--secondary-color);
+    line-height: 1.6;
+}
+
+/* === Reusable Components === */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+.btn {
+    display: inline-flex; /* Use flex for alignment */
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 28px;
+    border: 1px solid var(--primary-color);
+    border-radius: 8px;
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    background-color: var(--primary-hover-color);
+    transform: translateY(-2px);
+}
+
+.btn-secondary { background-color: var(--secondary-color); border-color: var(--secondary-color); }
+.btn-success { background-color: var(--success-color); border-color: var(--success-color); }
+.btn-danger { background-color: var(--danger-color); border-color: var(--danger-color); }
+.btn-sm { padding: 8px 16px; font-size: 0.9rem; }
+.btn-outline {
+    background-color: transparent;
+    color: var(--primary-color);
+}
+.btn-outline:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+
+.card {
+    background-color: var(--surface-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: 25px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+
+.page-header {
+    background-color: var(--surface-color);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.page-header .logo {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.page-header .logo span {
+    color: var(--secondary-color);
+}
+
+/* === NEW STYLES for Blinkit-like features === */
+
+/* Product Shelf (Horizontal Scroll) */
+.product-shelf {
+    margin-top: 3rem;
+}
+.shelf-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+.shelf-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+.shelf-container {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding-bottom: 20px; /* For scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) var(--background-color);
+}
+.shelf-container::-webkit-scrollbar {
+    height: 8px;
+}
+.shelf-container::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color);
+    border-radius: 10px;
+}
+.product-card-v2 {
+    flex: 0 0 220px; /* Fixed width for cards */
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 15px;
+    background: white;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.product-card-v2:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow);
+}
+.product-card-v2 img {
+    width: 100%;
+    height: 150px;
+    object-fit: contain;
+    margin-bottom: 15px;
+}
+.product-card-v2 .product-name {
+    font-weight: 600;
+    font-size: 1rem;
+    height: 40px; /* Two lines of text */
+    overflow: hidden;
+}
+.product-card-v2 .product-price {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 10px 0;
+}
+
+/* Quantity Stepper */
+.quantity-stepper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 8px;
+    width: 100%;
+    height: 46px; /* Match button height */
+}
+.quantity-stepper button {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    width: 40px;
+}
+.quantity-stepper .quantity {
+    font-weight: 600;
+}
+
+/* Seller Kanban Board */
+.kanban-board {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    margin-top: 20px;
+}
+.kanban-column {
+    background-color: #f0f2f5;
+    border-radius: var(--border-radius);
+    padding: 15px;
+}
+.kanban-column-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--border-color);
+}
+.kanban-card {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    border-left: 4px solid var(--primary-color);
+}
+.kanban-card .order-id { font-weight: 700; }
+.kanban-card .item-list {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 8px 0;
+}
+.kanban-card .timestamp {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+/* Low Stock Indicator */
+.low-stock-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: var(--danger-color);
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6); display: flex;
+    justify-content: center; align-items: center; z-index: 2000;
+    opacity: 0; visibility: hidden; transition: all 0.3s ease;
+}
+.modal-overlay.active { opacity: 1; visibility: visible; }
+.modal-content {
+    background: var(--surface-color); padding: 30px;
+    border-radius: var(--border-radius); width: 90%; max-width: 500px;
+    transform: translateY(-20px); transition: all 0.3s ease;
+}
+.modal-overlay.active .modal-content { transform: translateY(0); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-header h3 { margin: 0; }
+.close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; }

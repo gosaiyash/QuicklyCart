@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - QuicklyCart</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{--primary:#007BFF;--bg:#f8fafc;--surface:#fff;--muted:#6b7280;--border:#e5e7eb;--success:#16a34a;--danger:#dc2626;--radius:12px}
+        *{box-sizing:border-box;font-family:'Poppins',sans-serif}
+        body{background:var(--bg);margin:0;color:#111827}
+        /* Page shell */
+        .page{display:flex;flex-direction:column;min-height:100vh}
+        .container{width:100%;max-width:1280px;margin:16px auto;padding:0 24px}
+        @media (max-width:768px){.container{padding:0 16px}}
+        h2{margin:16px 0}
+        /* Card */
+        .orders-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+        .toolbar{display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border)}
+        .toolbar .title{font-size:1.05rem;color:var(--muted)}
+        .search{display:flex;align-items:center;gap:8px;background:#f1f5f9;border:1px solid var(--border);padding:10px 14px;border-radius:10px;min-width:280px}
+        .search input{border:none;background:transparent;outline:none;width:100%}
+        /* Order row */
+        .order{display:grid;grid-template-columns:72px 1fr auto;gap:14px;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;cursor:pointer}
+        .order:hover{background:#f9fafb}
+        .order:last-child{border-bottom:none}
+        .thumb{width:72px;height:72px;border-radius:10px;object-fit:cover;border:1px solid var(--border)}
+        .meta{display:flex;flex-direction:column;gap:6px}
+        .row{display:flex;gap:12px;flex-wrap:wrap}
+        .pill{background:#eef2ff;color:#1d4ed8;border:1px solid #c7d2fe;padding:4px 8px;border-radius:20px;font-size:.8rem;font-weight:600}
+        .pill.gray{background:#f3f4f6;color:#374151;border-color:#e5e7eb}
+        .amount{font-weight:700}
+        .muted{color:var(--muted)}
+        .empty{padding:40px;text-align:center;color:var(--muted)}
+    </style>
+    {% load static %}
+</head>
+<body>
+    {% include 'partials/navbar.html' %}
+    <div class="page">
+        <div class="container">
+            <h2>My Orders</h2>
+        <div class="orders-card">
+            <div class="toolbar">
+                <div class="title">Showing {{ orders|length }} orders</div>
+                <label class="search"><i class="fas fa-search" style="color:#94a3b8"></i><input id="orderSearch" placeholder="Search by product or order id"></label>
+            </div>
+            {% if orders %}
+                {% for o in orders %}
+                <a class="order" href="/moreinforproduct/{{ o.Product.product_id }}/" data-search="{{ o.order_id }} {{ o.Product.name }} {{ o.payment_type }} {{ o.status }}">
+                    <img class="thumb" src="/static/images/{{ o.Product.images.0 }}" alt="{{ o.Product.name }}">
+                    <div class="meta">
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <div style="font-weight:700">#{{ o.order_id }} &middot; {{ o.Product.name }}</div>
+                            <div class="amount">Rs. {{ o.price }}</div>
+                        </div>
+                        <div class="row" style="margin-top:6px">
+                            <div class="muted"><i class="far fa-calendar"></i> {{ o.created|date:"d M Y" }}</div>
+                            <div class="muted"><i class="far fa-clock"></i> {{ o.created|time:"h:i A" }}</div>
+                            <div class="pill"><i class="fas fa-money-bill-wave"></i> {{ o.payment_type }}</div>
+                            <div class="pill" style="background:#dcfce7;border-color:#86efac;color:#166534"><i class="fas fa-info-circle"></i> {{ o.status }}</div>
+                            <div class="pill gray"><i class="fas fa-truck"></i> ETA 45 mins</div>
+                            <div class="muted">Qty: {{ o.quantity }}</div>
+                            <div class="muted">Discount: {{ o.discount }}%</div>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+                {% else %}
+                <div class="empty"><i class="fas fa-box-open" style="font-size:28px"></i><div>No orders yet.</div></div>
+            {% endif %}
+        </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const input = document.getElementById('orderSearch');
+            const rows = Array.from(document.querySelectorAll('.order'));
+            input?.addEventListener('input', () => {
+                const term = input.value.toLowerCase();
+                rows.forEach(r => {
+                    const t = r.dataset.search.toLowerCase();
+                    r.style.display = t.includes(term) ? 'flex' : 'none';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
+

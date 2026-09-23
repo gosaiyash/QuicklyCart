@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - QuicklyCart</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --primary-color: #007BFF; 
+            --primary-hover: #0056b3;
+            --border-color: #e5e7eb; 
+            --surface: #fff; 
+            --radius: 12px; 
+            --success: #16a34a;
+            --success-hover: #15803d;
+            --danger: #dc2626;
+            --warning: #f59e0b;
+            --light-bg: #f8fafc;
+            --text-dark: #111827;
+            --text-muted: #6b7280;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        * {box-sizing: border-box; font-family: 'Poppins', sans-serif; margin: 0; padding: 0;}
+        body {background: var(--light-bg); margin: 0; color: var(--text-dark);}
+        .container {max-width: 900px; margin: 20px auto; padding: 16px;}
+        .card {background: var(--surface); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow);}
+        .summary {display: flex; gap: 16px; align-items: center;}
+        
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: none;
+        }
+        .btn-success {background: var(--success); color: white;}
+        .btn-success:hover {background: var(--success-hover);}
+        .btn-primary {background: var(--primary-color); color: white;}
+        .btn-primary:hover {background: var(--primary-hover);}
+        .btn-outline {background: transparent; border: 1px solid var(--border-color); color: var(--text-dark);}
+        .btn-outline:hover {background: #f1f5f9;}
+        .btn-block {width: 100%; margin-top: 10px;}
+        
+        /* Payment Methods */
+        .payment-methods {margin-top: 20px;}
+        .payment-option {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .payment-option:hover {border-color: var(--primary-color);}
+        .payment-option.active {border-color: var(--primary-color); background-color: #f0f7ff;}
+        .payment-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .payment-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+        .payment-icon {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            color: white;
+            font-size: 14px;
+        }
+        .upi-icon {background-color: #6366f1;}
+        .card-icon {background-color: #8b5cf6;}
+        .cod-icon {background-color: #f59e0b;}
+        
+        .payment-content {
+            margin-top: 15px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .active .payment-content {display: block;}
+        
+        /* Form Elements */
+        .form-group {margin-bottom: 15px;}
+        .form-group label {display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px;}
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        /* UPI Section */
+        .qr-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            margin: 15px 0;
+        }
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            background-color: #f1f5f9;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .qr-code img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        
+        /* Bill Section */
+        .bill-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        .bill-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .bill-title {font-size: 20px; font-weight: 700;}
+        .bill-actions {display: flex; gap: 10px;}
+        .bill-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .bill-item:last-child {border-bottom: none;}
+        .bill-label {font-weight: 500;}
+        .bill-total {
+            font-weight: 700;
+            font-size: 18px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(10px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-row {flex-direction: column; gap: 0;}
+        }
+    </style>
+    {% load static %}
+    {% widthratio product.price 100 90 as discounted_price %}
+</head>
+<body>
+    <div class="container">
+        <h2 style="margin-bottom: 20px;">Checkout</h2>
+        
+        <!-- Order Summary -->
+        <div class="card">
+            <h3 style="margin-bottom: 15px;">Order Summary</h3>
+            {% if cart_items %}
+                {% for item in cart_items %}
+                <div class="summary" style="margin-bottom: 15px;">
+                    {% if item.Product.images %}
+                        {% with first_image=item.Product.images|first %}
+                            {% if first_image %}
+                            <img src="/static/images/{{ first_image }}" alt="{{ item.Product.name }}" style="width:80px;height:80px;border-radius:10px;object-fit:cover">
+                            {% else %}
+                            <div style="width:80px;height:80px;border-radius:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-box" style="color:#9ca3af;font-size:24px;"></i>
+                            </div>
+                            {% endif %}
+                        {% endwith %}
+                    {% else %}
+                    <div style="width:80px;height:80px;border-radius:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-box" style="color:#9ca3af;font-size:24px;"></i>
+                    </div>
+                    {% endif %}
+                    <div style="flex:1">
+                        <div style="font-weight:700">{{ item.Product.name }}</div>
+                        <div style="color:var(--text-muted)">Qty: {{ item.quantity }}</div>
+                    </div>
+                    <div style="text-align:right">
+                        {% widthratio item.Product.price 100 90 as item_discounted_price %}
+                        <div style="font-weight:700">Rs. {{ item_discounted_price|floatformat:2 }}</div>
+                        <div style="color:#9ca3af;text-decoration:line-through">Rs. {{ item.Product.price|floatformat:2 }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="text-align: center; padding: 20px; color: var(--text-muted);">
+                    No items in cart
+                </div>
+            {% endif %}
+            
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px dashed var(--border-color);">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span>Subtotal</span>
+                    <span>Rs. {{ discounted_total|floatformat:2 }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span>Delivery Fee</span>
+                    <span>Rs. 40.00</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-weight: 700; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color);">
+                    <span>Total</span>
+                    <span>Rs. {{ discounted_total|add:40|floatformat:2 }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Payment Methods -->
+        <div class="card">
+            <h3 style="margin-bottom: 15px;">Select Payment Method</h3>
+            
+            <div class="payment-methods">
+                <!-- UPI Payment -->
+                <div class="payment-option" id="upiOption">
+                    <div class="payment-header">
+                        <div class="payment-title">
+                            <div class="payment-icon upi-icon"><i class="fas fa-mobile-alt"></i></div>
+                            UPI Payment
+                        </div>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="payment-content">
+                        <div class="qr-container">
+                            <div class="qr-code">
+                                <!-- Replace with actual QR code image -->
+                                <i class="fas fa-qrcode" style="font-size: 100px; color: #6b7280;"></i>
+                            </div>
+                            <p style="text-align: center; margin-bottom: 15px;">Scan QR code with any UPI app</p>
+                        </div>
+                        
+                        <div style="text-align: center; margin-bottom: 15px;">
+                            <span style="display: inline-block; width: 100px; height: 1px; background: var(--border-color);"></span>
+                            <span style="margin: 0 10px; color: var(--text-muted);">OR</span>
+                            <span style="display: inline-block; width: 100px; height: 1px; background: var(--border-color);"></span>
+                        </div>
+                        
+                        <form id="upiForm">
+                            <div class="form-group">
+                                <label for="upiId">Enter UPI ID</label>
+                                <div style="display: flex;">
+                                    <input type="text" id="upiId" class="form-control" placeholder="yourname@upi" style="border-radius: 6px 0 0 6px;">
+                                    <button type="button" class="btn btn-primary" style="border-radius: 0 6px 6px 0;" onclick="verifyUpi()">Verify</button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-success btn-block" onclick="processUpiPayment()">Pay Now</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Card Payment -->
+                <div class="payment-option" id="cardOption">
+                    <div class="payment-header">
+                        <div class="payment-title">
+                            <div class="payment-icon card-icon"><i class="fas fa-credit-card"></i></div>
+                            Credit/Debit Card
+                        </div>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="payment-content">
+                        <form id="cardForm">
+                            <div class="form-group">
+                                <label for="cardNumber">Card Number</label>
+                                <input type="text" id="cardNumber" class="form-control" placeholder="1234 5678 9012 3456" maxlength="19">
+                            </div>
+                            <div class="form-group">
+                                <label for="cardName">Name on Card</label>
+                                <input type="text" id="cardName" class="form-control" placeholder="John Doe">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="expiryDate">Expiry Date</label>
+                                    <input type="text" id="expiryDate" class="form-control" placeholder="MM/YY" maxlength="5">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cvv">CVV</label>
+                                    <input type="password" id="cvv" class="form-control" placeholder="123" maxlength="3">
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-success btn-block" onclick="processCardPayment()">Pay Now</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Cash on Delivery -->
+                <div class="payment-option" id="codOption">
+                    <div class="payment-header">
+                        <div class="payment-title">
+                            <div class="payment-icon cod-icon"><i class="fas fa-money-bill-wave"></i></div>
+                            Cash on Delivery
+                        </div>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="payment-content">
+                        <p style="margin-bottom: 15px;">Pay with cash when your order is delivered.</p>
+                        <button type="button" class="btn btn-success btn-block" onclick="processCodPayment()">Place Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bill Section (Hidden initially) -->
+        <div class="card bill-section" id="billSection">
+            <div class="bill-header">
+                <div class="bill-title">Order Confirmation</div>
+                <div class="bill-actions">
+                    <button class="btn btn-outline" onclick="downloadBill()"><i class="fas fa-download" style="margin-right: 5px;"></i> Download</button>
+                    <button class="btn btn-primary" onclick="window.location.href='/'"><i class="fas fa-home" style="margin-right: 5px;"></i> Home</button>
+                </div>
+            </div>
+            
+            <div style="background-color: #f0f9ff; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <i class="fas fa-check-circle" style="color: var(--success); font-size: 24px;"></i>
+                    <div>
+                        <div style="font-weight: 700;">Payment Successful!</div>
+                        <div style="font-size: 14px; color: var(--text-muted);">Your order has been placed successfully.</div>
+                    </div>
+                </div>
+                <div id="paymentMethodInfo" style="font-size: 14px; margin-top: 5px;"></div>
+            </div>
+            
+            <div class="bill-details">
+                <div class="bill-item">
+                    <div class="bill-label">Order ID</div>
+                    <div id="orderId">#QC{{ discounted_total|add:40|floatformat:0 }}</div>
+                </div>
+                <div class="bill-item">
+                    <div class="bill-label">Date & Time</div>
+                    <div id="orderDate"></div>
+                </div>
+                <div class="bill-item">
+                    <div class="bill-label">Payment Method</div>
+                    <div id="paymentMethod"></div>
+                </div>
+                
+                <div style="margin: 20px 0; border-top: 1px dashed var(--border-color); padding-top: 20px;">
+                    <div style="font-weight: 600; margin-bottom: 15px;">Order Details</div>
+                    
+                    {% if cart_items %}
+                        {% for item in cart_items %}
+                        <div style="display: flex; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);">
+                            {% if item.Product.images %}
+                                {% with first_image=item.Product.images|first %}
+                                    {% if first_image %}
+                                    <img src="/static/images/{{ first_image }}" alt="{{ item.Product.name }}" style="width:60px;height:60px;border-radius:8px;object-fit:cover; margin-right: 15px;">
+                                    {% else %}
+                                    <div style="width:60px;height:60px;border-radius:8px;background:#f1f5f9;display:flex;align-items:center;justify-content:center; margin-right: 15px;">
+                                        <i class="fas fa-box" style="color:#9ca3af;font-size:18px;"></i>
+                                    </div>
+                                    {% endif %}
+                                {% endwith %}
+                            {% else %}
+                            <div style="width:60px;height:60px;border-radius:8px;background:#f1f5f9;display:flex;align-items:center;justify-content:center; margin-right: 15px;">
+                                <i class="fas fa-box" style="color:#9ca3af;font-size:18px;"></i>
+                            </div>
+                            {% endif %}
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600;">{{ item.Product.name }}</div>
+                                <div style="font-size: 14px; color: var(--text-muted);">Qty: {{ item.quantity }}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                {% widthratio item.Product.price 100 90 as item_discounted_price %}
+                                <div>Rs. {{ item_discounted_price|floatformat:2 }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div style="text-align: center; padding: 20px; color: var(--text-muted);">
+                        No items in cart
+                    </div>
+                    {% endif %}
+                    
+                    <div class="bill-item">
+                        <div class="bill-label">Subtotal</div>
+                        <div>Rs. {{ discounted_total|floatformat:2 }}</div>
+                    </div>
+                    <div class="bill-item">
+                        <div class="bill-label">Delivery Fee</div>
+                        <div>Rs. 40.00</div>
+                    </div>
+                    
+                    <div class="bill-total">
+                        <div>Total</div>
+                        <div>Rs. {{ discounted_total|add:40|floatformat:2 }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Toggle payment options
+        document.querySelectorAll('.payment-option').forEach(option => {
+            option.querySelector('.payment-header').addEventListener('click', () => {
+                // Close all other options
+                document.querySelectorAll('.payment-option').forEach(opt => {
+                    if (opt !== option) opt.classList.remove('active');
+                });
+                // Toggle current option
+                option.classList.toggle('active');
+            });
+        });
+        
+        // Format card number with spaces
+        document.getElementById('cardNumber').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+            let formattedValue = '';
+            for (let i = 0; i < value.length; i++) {
+                if (i > 0 && i % 4 === 0) {
+                    formattedValue += ' ';
+                }
+                formattedValue += value[i];
+            }
+            e.target.value = formattedValue;
+        });
+        
+        // Format expiry date
+        document.getElementById('expiryDate').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            e.target.value = value;
+        });
+        
+        // UPI Payment Processing
+        function verifyUpi() {
+            const upiId = document.getElementById('upiId').value;
+            if (upiId && upiId.includes('@')) {
+                alert('UPI ID verified successfully!');
+            } else {
+                alert('Please enter a valid UPI ID');
+            }
+        }
+        
+        function processUpiPayment() {
+            const upiId = document.getElementById('upiId').value;
+            if (upiId && upiId.includes('@')) {
+                showBill('UPI', 'Paid via UPI: ' + upiId);
+            } else {
+                alert('Please enter and verify your UPI ID');
+            }
+        }
+        
+        // Card Payment Processing
+        function processCardPayment() {
+            const cardNumber = document.getElementById('cardNumber').value;
+            const cardName = document.getElementById('cardName').value;
+            const expiryDate = document.getElementById('expiryDate').value;
+            const cvv = document.getElementById('cvv').value;
+            
+            if (cardNumber.length < 19 || !cardName || expiryDate.length < 5 || cvv.length < 3) {
+                alert('Please fill all card details correctly');
+                return;
+            }
+            
+            const maskedCard = 'xxxx xxxx xxxx ' + cardNumber.slice(-4);
+            showBill('Credit/Debit Card', 'Paid via Card: ' + maskedCard);
+        }
+        
+        // COD Payment Processing
+        async function processCodPayment() {
+            try {
+                // Choose endpoint based on server-side flag passed in context
+                const isCart = {{ is_cart_checkout|yesno:"true,false" }};
+                const url = isCart ? '/place-cart-order/' : '/place-cod-order/';
+                const resp = await fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': (document.cookie.match(/csrftoken=([^;]+)/)||[])[1] || '' } });
+                if (!resp.ok) {
+                    // Even if non-ajax view redirects, still show confirmation UX
+                    showBill('Cash on Delivery', 'Pay on delivery');
+                    return;
+                }
+                showBill('Cash on Delivery', 'Pay on delivery');
+            } catch (e) {
+                showBill('Cash on Delivery', 'Pay on delivery');
+            }
+        }
+        
+        // Show Bill and Order Confirmation
+        function showBill(paymentMethod, paymentDetails) {
+            // Hide payment options
+            document.querySelectorAll('.payment-option').forEach(opt => {
+                opt.style.display = 'none';
+            });
+            
+            // Set bill details
+            document.getElementById('paymentMethod').textContent = paymentMethod;
+            document.getElementById('paymentMethodInfo').textContent = paymentDetails;
+            
+            // Set current date and time
+            const now = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            document.getElementById('orderDate').textContent = now.toLocaleDateString('en-US', options);
+            
+            // Show bill section
+            document.getElementById('billSection').style.display = 'block';
+            
+            // Scroll to bill section
+            document.getElementById('billSection').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Download Bill as PDF (simulated)
+        function downloadBill() {
+            alert('Bill download initiated. Your bill will be downloaded as PDF.');
+            
+            // In a real implementation, you would use a library like jsPDF or 
+            // make a server request to generate a PDF
+        }
+        
+        // Open first payment option by default
+        document.getElementById('upiOption').classList.add('active');
+    </script>
+</body>
+</html>
+
+

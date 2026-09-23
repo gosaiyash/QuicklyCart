@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email - QuicklyCart Rider</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary: #007BFF;
+            --bg: #f8fafc;
+            --surface: #fff;
+            --border: #e5e7eb;
+            --radius: 12px;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+        }
+        
+        body {
+            background: var(--bg);
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            color: #111827;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            max-width: 500px;
+            width: 100%;
+            padding: 20px;
+        }
+        
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: 0 6px 20px rgba(0,0,0,.06);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 30px 20px;
+            background: var(--primary);
+            color: #fff;
+            text-align: center;
+        }
+        
+        .card-header i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .card-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .card-body {
+            padding: 30px 20px;
+        }
+        
+        .otp-form {
+            text-align: center;
+        }
+        
+        .otp-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1.2rem;
+            text-align: center;
+            letter-spacing: 0.5rem;
+            margin-bottom: 20px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .otp-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+        
+        .timer-container {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+        
+        .timer {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .timer.expired {
+            color: var(--error);
+        }
+        
+        .resend-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .resend-btn:hover:not(:disabled) {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+        
+        .resend-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .verify-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: var(--radius);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+        
+        .verify-btn:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+        
+        .verify-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .info-text {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .back-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+        
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-envelope-open-text"></i>
+                <h2>Verify Your Email</h2>
+            </div>
+            <div class="card-body">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <div class="otp-form">
+                    <p class="info-text">
+                        We've sent a 6-digit verification code to your email address. 
+                        Please enter the code below to complete your rider registration.
+                    </p>
+                    
+                    <form method="post" action="/rider/verify-otp/">
+                        {% csrf_token %}
+                        <input type="text" 
+                               name="otp" 
+                               class="otp-input" 
+                               placeholder="000000" 
+                               maxlength="6" 
+                               pattern="[0-9]{6}" 
+                               required
+                               autocomplete="off">
+                        
+                        <div class="timer-container">
+                            <div class="timer" id="timer">05:00</div>
+                            <p style="margin: 5px 0 0; font-size: 0.9rem; color: #6b7280;">
+                                Time remaining to verify
+                            </p>
+                        </div>
+                        
+                        <button type="button" 
+                                class="resend-btn" 
+                                id="resendBtn" 
+                                onclick="resendOTP()" 
+                                disabled>
+                            <i class="fas fa-redo"></i> Resend OTP
+                        </button>
+                        
+                        <button type="submit" class="verify-btn">
+                            <i class="fas fa-check"></i> Verify Email
+                        </button>
+                    </form>
+                    
+                    <div class="back-link">
+                        <a href="/becomeRider/">
+                            <i class="fas fa-arrow-left"></i> Back to Registration
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let timeLeft = 300; // 5 minutes in seconds
+        let timerInterval;
+        const timerElement = document.getElementById('timer');
+        const resendBtn = document.getElementById('resendBtn');
+        const otpInput = document.querySelector('.otp-input');
+        
+        // Format time as MM:SS
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+        
+        // Update timer display
+        function updateTimer() {
+            timerElement.textContent = formatTime(timeLeft);
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                timerElement.textContent = '00:00';
+                timerElement.classList.add('expired');
+                resendBtn.disabled = false;
+                resendBtn.innerHTML = '<i class="fas fa-redo"></i> Resend OTP';
+            } else {
+                timeLeft--;
+            }
+        }
+        
+        // Start the timer
+        function startTimer() {
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+        
+        // Resend OTP function
+        function resendOTP() {
+            if (resendBtn.disabled) return;
+            
+            resendBtn.disabled = true;
+            resendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            
+            // Create a form to submit resend request
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/rider/resend-otp/';
+            
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+        
+        // Auto-focus OTP input
+        otpInput.focus();
+        
+        // Format OTP input (only numbers)
+        otpInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+        
+        // Start timer when page loads
+        startTimer();
+        
+        // Handle form submission
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const otpValue = otpInput.value.trim();
+            if (otpValue.length !== 6) {
+                e.preventDefault();
+                alert('Please enter a valid 6-digit OTP');
+                otpInput.focus();
+            }
+        });
+    </script>
+</body>
+</html>

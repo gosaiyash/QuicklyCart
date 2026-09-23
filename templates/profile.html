@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    {% load static %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+        :root { --primary:#007BFF; --bg:#f8fafc; --surface:#fff; --muted:#6b7280; --border:#e5e7eb; --radius:12px }
+        body { font-family:'Poppins',sans-serif; background-color: var(--bg); margin:0; color:#111827 }
+        .page{min-height:100vh; display:flex; flex-direction:column}
+        .container{width:100%; max-width:1080px; margin:16px auto; padding:0 20px}
+        
+        .profile-layout{display:grid; grid-template-columns:320px 1fr; gap:20px}
+        @media (max-width:900px){ .profile-layout{grid-template-columns:1fr} }
+
+        .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:0 6px 20px rgba(0,0,0,.06)}
+        .card-header{padding:16px 20px; border-bottom:1px solid var(--border); font-weight:700}
+        .card-body{padding:20px}
+
+        .profile-summary{ text-align:center }
+        .profile-image{width:120px; height:120px; border-radius:50%; object-fit:cover; border:4px solid #eef2ff}
+        .profile-name{font-size:1.6rem; font-weight:700; margin:10px 0 4px}
+        .muted{color:var(--muted)}
+        .actions{display:flex; gap:10px; justify-content:center; margin-top:14px}
+        .btn{display:inline-flex; align-items:center; gap:8px; padding:10px 16px; border:1px solid var(--primary); border-radius:10px; background:var(--primary); color:#fff; font-weight:600; cursor:pointer}
+        .btn-outline{background:#fff; color:var(--primary)}
+
+        .info-list{list-style:none; padding:0; margin:0}
+        .info-item{display:flex; gap:12px; align-items:center; padding:12px 0; border-bottom:1px dashed var(--border)}
+        .info-item:last-child{border-bottom:none}
+        .info-item i{color:var(--muted); width:18px; text-align:center}
+        .info-item .label{width:140px; color:#374151; font-weight:600}
+
+        .stats-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+        .stat{background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:14px; text-align:center}
+        .stat .value{font-size:1.3rem; font-weight:700}
+        .stat .label{color:var(--muted)}
+        .address-item{display:flex; gap:12px; padding:12px; background:#f9fafb; border:1px solid var(--border); border-radius:10px}
+        .address-item i{color:#2563eb; margin-top:2px}
+    </style>
+</head>
+<body>
+    {% include 'partials/navbar.html' %}
+    <div class="page">
+        <div class="container">
+            <div class="profile-layout">
+                <!-- Left: Summary -->
+                <div class="card">
+                    <div class="card-body profile-summary">
+                        <img class="profile-image" src="{% static 'images/'|add:user.image %}" alt="{{ user.first_name }}">
+                        <div class="profile-name">{{ user.first_name }} {{ user.last_name }}</div>
+                        <div class="muted">{{ user.city }}, {{ user.pincode }}</div>
+                        <div class="actions">
+                            <button class="btn" id="openEdit"><i class="fas fa-pen"></i>Edit Profile</button>
+                            <a class="btn btn-outline" href="/orders"><i class="fas fa-box"></i>Orders</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Details -->
+                <div class="card">
+                    <div class="card-header">Account Details</div>
+                    <div class="card-body">
+                        <ul class="info-list">
+                            <li class="info-item"><i class="fas fa-envelope"></i><div class="label">Email</div><div>{{ user.email }}</div></li>
+                            <li class="info-item"><i class="fas fa-phone"></i><div class="label">Mobile</div><div>{{ user.mobile }}</div></li>
+                            <li class="info-item"><i class="fas fa-location-dot"></i><div class="label">Location</div><div>{{ user.city }}, {{ user.pincode }}</div></li>
+                            <li class="info-item"><i class="fas fa-venus-mars"></i><div class="label">Gender</div><div>{{ user.gender }}</div></li>
+                            <li class="info-item"><i class="fas fa-user-tag"></i><div class="label">User Type</div><div>{{ user.role }}</div></li>
+                        </ul>
+                        <div style="margin-top:18px" class="stats-grid">
+                            <div class="stat"><div class="value">{{ total_orders }}</div><div class="label">Orders</div></div>
+                            <div class="stat"><div class="value">{{ addresses_count }}</div><div class="label">Addresses</div></div>
+                        </div>
+                        <div class="card" style="margin-top:20px">
+                            <div class="card-header">Saved Address</div>
+                            <div class="card-body">
+                                {% if user.address %}
+                                <div class="address-item">
+                                    <i class="fas fa-home"></i>
+                                    <div>
+                                        <div style="font-weight:600">Home</div>
+                                        <div class="muted">{{ user.address }}, {{ user.city }} - {{ user.pincode }}</div>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="muted">No address saved. Please update your profile.</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% include 'footer.html' %}
+    </div>
+    <!-- Edit Profile Modal -->
+    <div id="editModal" style="position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:2000">
+        <div class="card" style="width:95%;max-width:520px">
+            <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
+                Edit Profile
+                <button id="closeEdit" style="background:none;border:none;font-size:1.4rem;cursor:pointer">&times;</button>
+            </div>
+            <div class="card-body">
+                <form method="post" action="/profile/update/" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                        <label>First Name<input name="first_name" value="{{ user.first_name }}" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px"></label>
+                        <label>Last Name<input name="last_name" value="{{ user.last_name }}" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px"></label>
+                    </div>
+                    <label style="display:block;margin-top:10px">Mobile<input name="mobile" value="{{ user.mobile }}" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px"></label>
+                    <label style="display:block;margin-top:10px">Address<input name="address" value="{{ user.address }}" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px"></label>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">
+                        <label>City<input name="city" value="{{ user.city }}" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px"></label>
+                        <label>Pincode<input name="pincode" value="{{ user.pincode }}" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px"></label>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">
+                        <label>Gender
+                            <select name="gender" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px">
+                                <option value="male" {% if user.gender == 'male' %}selected{% endif %}>Male</option>
+                                <option value="female" {% if user.gender == 'female' %}selected{% endif %}>Female</option>
+                                <option value="other" {% if user.gender == 'other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </label>
+                        <label>Profile Image<input type="file" name="image" accept="image/*" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px"></label>
+                    </div>
+                    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
+                        <button type="button" id="cancelEdit" class="btn btn-outline">Cancel</button>
+                        <button class="btn" type="submit">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('openEdit')?.addEventListener('click', ()=>{
+            document.getElementById('editModal').style.display='flex';
+        });
+        function closeEdit(){document.getElementById('editModal').style.display='none'}
+        document.getElementById('closeEdit')?.addEventListener('click', closeEdit);
+        document.getElementById('cancelEdit')?.addEventListener('click', closeEdit);
+        document.getElementById('editModal')?.addEventListener('click', (e)=>{ if(e.target.id==='editModal') closeEdit(); });
+    </script>
+</body>
+</html>

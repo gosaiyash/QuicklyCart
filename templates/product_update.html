@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Product - QuicklyCart</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary-color: #0f172a;
+            --surface-color: #fff;
+            --background-color: #f3f6fb;
+            --border-color: #e5e7eb;
+            --success-color: #22c55e;
+            --danger-color: #ef4444;
+            --warning-color: #f59e42;
+            --info-color: #3b82f6;
+            --border-radius: 14px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.07);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body {
+            background: linear-gradient(120deg, #f3f6fb 60%, #e0e7ff 100%);
+            color: var(--secondary-color);
+            min-height: 100vh;
+        }
+        .dashboard-layout { display: flex; min-height: 100vh; }
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(160deg, #1e293b 80%, #2563eb 100%);
+            color: #fff;
+            padding: 32px 20px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 16px rgba(37,99,235,0.07);
+            flex-shrink: 0;
+        }
+        .sidebar .logo {
+            color: #fff;
+            margin-bottom: 40px;
+            text-align: center;
+            font-size: 1.7rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+        .sidebar .logo span { color: var(--primary-color); }
+        .sidebar-nav ul { list-style: none; }
+        .sidebar-nav ul li a {
+            color: #cbd5e1;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 14px 18px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            font-size: 1.08rem;
+            font-weight: 500;
+            transition: background 0.2s, color 0.2s;
+        }
+        .sidebar-nav ul li a:hover, .sidebar-nav ul li a.active {
+            background: var(--primary-color);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(37,99,235,0.08);
+        }
+        .sidebar-nav ul li a i { width: 22px; text-align: center; }
+        .main-content-wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 40px 5vw;
+            background: transparent;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 26px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary-color);
+            color: #fff;
+            font-weight: 700;
+            font-size: 1rem;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(37,99,235,0.07);
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover { background: var(--primary-hover); box-shadow: 0 4px 16px rgba(37,99,235,0.13); }
+        .btn-outline {
+            background: transparent;
+            color: var(--primary-color);
+            border: 1.5px solid var(--primary-color);
+        }
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: #fff;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+        }
+        .form-group { display: flex; flex-direction: column; margin-bottom: 18px; }
+        .form-group label { margin-bottom: 8px; font-weight: 600; color: var(--secondary-color); }
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 13px 14px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: #f9fafb;
+            transition: border 0.2s;
+            width: 100%;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            background: #fff;
+        }
+        .main-header-bar {
+            width: 100%;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(37,99,235,0.04);
+            padding: 0 5vw;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .profile-info {
+            position: relative;
+        }
+        .profile-info-clickable {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 6px 16px 6px 6px;
+            border-radius: 30px;
+            background: #f1f5f9;
+            transition: background 0.2s;
+        }
+        .profile-info-clickable:hover {
+            background: #e0e7ff;
+        }
+        .profile-info-clickable img {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-color);
+        }
+        .profile-info-clickable span {
+            font-weight: 600;
+            font-size: 1.08rem;
+        }
+        .profile-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            width: 200px;
+            overflow: hidden;
+            z-index: 110;
+            opacity: 0;
+            transform: translateY(-10px);
+            visibility: hidden;
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+        }
+        .profile-dropdown.show {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+        }
+        .profile-dropdown a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+        .profile-dropdown a i {
+            width: 18px;
+            text-align: center;
+            color: #64748b;
+        }
+        .profile-dropdown a:hover {
+            background: #f3f6fb;
+        }
+        .profile-dropdown a.logout { color: var(--danger-color); }
+        .profile-dropdown a.logout i { color: var(--danger-color); }
+        .profile-dropdown .divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 6px 0;
+        }
+        .section-card {
+            background: var(--surface-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 32px 28px;
+            margin-bottom: 32px;
+            border: 1px solid var(--border-color);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+        .image-uploader .btn { margin-top: 10px; }
+        
+        /* --- Image Preview Styling --- */
+        .image-preview-container, .current-images-container {
+            display: flex; gap: 15px; margin-top: 15px; flex-wrap: wrap;
+        }
+        .image-preview, .current-image-wrapper { 
+            position: relative; 
+            width: 100px; 
+            height: 100px; 
+        }
+        .image-preview img, .current-image-wrapper img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .remove-preview-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            line-height: 1;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+        .remove-preview-btn:hover {
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-layout { flex-direction: column; }
+            .sidebar { width: 100%; flex-direction: row; align-items: center; justify-content: space-between; padding: 18px 5vw; height: auto; }
+            .sidebar-nav ul { display: flex; gap: 10px; }
+            .sidebar-nav ul li a { margin-bottom: 0; padding: 10px 12px; font-size: 0.98rem; }
+        }
+        @media (max-width: 700px) {
+            .main-content { padding: 24px 4vw; }
+            .section-card { padding: 24px 16px; }
+            .form-grid { grid-template-columns: 1fr; gap: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="logo">Seller<span>Panel</span></div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="#" class="nav-link active"><i class="fas fa-box-open"></i> Products</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-sitemap"></i> Categories</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-warehouse"></i> My Warehouses</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-receipt"></i> Orders</a></li>
+                    <li><a href="#" class="nav-link"><i class="fas fa-cog"></i> Settings</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <div class="main-content-wrapper">
+            <header class="main-header-bar">
+                <div class="profile-info">
+                    <div class="profile-info-clickable" id="profile-info-toggler">
+                        <img src="{% static 'images/'|add:request.session.image %}" alt="{{ request.session.image }}">
+                        <span>{{ request.session.user_name }}</span>
+                    </div>
+                    <div class="profile-dropdown" id="profile-dropdown">
+                        <a href="#"><i class="fas fa-user-edit"></i>Update Profile</a>
+                        <div class="divider"></div>
+                        <a href="/logout" class="logout"><i class="fas fa-sign-out-alt"></i>Logout</a>
+                    </div>
+                </div>
+            </header>
+            <main class="main-content">
+                <section class="section-card">
+                    <div class="card-header">
+                        <h2>Update Product</h2>
+                        <a href="#" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Back to Products</a>
+                    </div>
+                    <form id="updateProductForm" method="post" action="{% url 'update_product_save' p.product_id %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="productName">Product Name</label>
+                                <input type="text" id="productName" name="productName" value="{{ p.name }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productPrice">Price (Rs.)</label>
+                                <input type="number" id="productPrice" name="productPrice" step="0.01" value="{{ p.price }}" required>
+                            </div>
+                        </div>
+                         <div class="form-grid">
+                            <div class="form-group">
+                                <label for="productStock">Stock</label>
+                                <input type="number" id="productStock" name="productStock" value="{{ p.quantity }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productMainCategory">Category</label>
+                                <input type="text" id="productMainCategory" name="productMainCategory" value="{{ p.category }}" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="productDescription">Product Description</label>
+                            <textarea id="productDescription" name="productDescription" rows="5">{{ p.description }}</textarea>
+                        </div>
+                        <div class="form-group image-uploader">
+                            <label>Product Images</label>
+                            
+                            {% if p.images %}
+                            <div id="currentImagesContainer" class="current-images-container">
+                                <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 10px; width: 100%;">Current Images:</p>
+                                {% for image_path in p.images %}
+                                <div class="current-image-wrapper">
+                                    <img src="/static/images/{{ image_path }}" alt="Current product image">
+                                    <button type="button" class="remove-preview-btn remove-existing-btn" data-image-path="{{ image_path }}" title="Remove this image">&times;</button>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            
+                            <input type="hidden" name="images_to_remove" id="imagesToRemoveInput" value="">
+
+                            <input type="file" id="productImages" name="productImages" multiple accept="image/*" style="display: none;">
+                            <button type="button" class="btn btn-outline" onclick="document.getElementById('productImages').click()" style="margin-top: 15px;"><i class="fas fa-upload"></i> Upload New Images</button>
+                            <div class="image-preview-container" id="imagePreviewContainer">
+                                <!-- New image previews will be shown here -->
+                            </div>
+                        </div>
+                        <div style="margin-top: 20px; text-align: right;">
+                            <button type="submit" class="btn" id="saveProductBtn">Update Product</button>
+                        </div>
+                    </form>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- PROFILE DROPDOWN LOGIC ---
+            const profileToggler = document.getElementById('profile-info-toggler');
+            const profileDropdown = document.getElementById('profile-dropdown');
+
+            if (profileToggler && profileDropdown) {
+                profileToggler.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    profileDropdown.classList.toggle('show');
+                });
+                document.addEventListener('click', (e) => {
+                    if (profileToggler && !profileToggler.contains(e.target) && profileDropdown.classList.contains('show')) {
+                        profileDropdown.classList.remove('show');
+                    }
+                });
+            }
+
+            // --- REMOVE EXISTING IMAGES LOGIC ---
+            const currentImagesContainer = document.getElementById('currentImagesContainer');
+            const imagesToRemoveInput = document.getElementById('imagesToRemoveInput');
+
+            if (currentImagesContainer && imagesToRemoveInput) {
+                currentImagesContainer.addEventListener('click', (e) => {
+                    if (e.target && e.target.classList.contains('remove-existing-btn')) {
+                        const imagePath = e.target.dataset.imagePath;
+                        const wrapper = e.target.closest('.current-image-wrapper');
+                        
+                        // Hide the image wrapper
+                        if (wrapper) wrapper.style.display = 'none';
+
+                        // Add the image path to the hidden input for form submission
+                        const currentVal = imagesToRemoveInput.value;
+                        imagesToRemoveInput.value = currentVal ? `${currentVal},${imagePath}` : imagePath;
+                    }
+                });
+            }
+
+            // --- IMAGE PREVIEW LOGIC FOR NEW UPLOADS ---
+            const productImagesInput = document.getElementById('productImages');
+            const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+            let uploadedFiles = []; 
+
+            function renderPreviews() {
+                imagePreviewContainer.innerHTML = '';
+                uploadedFiles.forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const previewWrapper = document.createElement('div');
+                        previewWrapper.className = 'image-preview';
+                        previewWrapper.innerHTML = `
+                            <img src="${event.target.result}" alt="Preview">
+                            <button type="button" class="remove-preview-btn remove-new-btn" data-index="${index}" title="Remove image">&times;</button>
+                        `;
+                        imagePreviewContainer.appendChild(previewWrapper);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+            
+            function updateFileInput() {
+                const dataTransfer = new DataTransfer();
+                uploadedFiles.forEach(file => dataTransfer.items.add(file));
+                productImagesInput.files = dataTransfer.files;
+            }
+
+            if (productImagesInput && imagePreviewContainer) {
+                productImagesInput.addEventListener('change', e => {
+                    if (e.target.files) {
+                        uploadedFiles = Array.from(e.target.files);
+                        renderPreviews();
+                    }
+                });
+
+                imagePreviewContainer.addEventListener('click', e => {
+                    if (e.target && e.target.classList.contains('remove-new-btn')) {
+                        const index = parseInt(e.target.dataset.index, 10);
+                        if (!isNaN(index)) {
+                            uploadedFiles.splice(index, 1);
+                            updateFileInput();
+                            renderPreviews();
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+

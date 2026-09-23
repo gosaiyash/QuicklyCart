@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuicklyCart - Header</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Base Styles */
+        :root {
+            --primary-color: #007BFF;
+            --primary-hover-color: #0056b3;
+            --secondary-color: #343a40;
+            --background-color: #f8f9fa;
+            --surface-color: #FFFFFF;
+            --border-color: #dee2e6;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+            --border-radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--background-color); color: var(--secondary-color); }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 10px 20px; border: 1px solid var(--primary-color); border-radius: 8px;
+            background-color: var(--primary-color); color: white; font-weight: 600;
+            text-decoration: none; cursor: pointer; transition: all 0.3s ease;
+        }
+        .btn:hover { background-color: var(--primary-hover-color); transform: translateY(-2px); }
+        .btn-outline { background-color: transparent; color: var(--primary-color); }
+        .btn-outline:hover { background-color: var(--primary-color); color: white; }
+        .btn-sm { padding: 8px 16px; font-size: 0.9rem; }
+        
+        /* Header Styles */
+        .page-header {
+            background-color: var(--surface-color); position: sticky; top: 0; z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .main-header { padding: 0.75rem 1.5rem; display: flex; justify-content: space-between; align-items: center; min-height: 70px; }
+        .main-header .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary-color); flex-shrink: 0; }
+        .main-header .logo span { color: var(--secondary-color); }
+        .search-container { display: flex; align-items: center; background: #f0f2f5; border-radius: 8px; padding: 0 15px; flex-grow: 1; max-width: 500px; height: 42px; }
+        .search-container i { color: #999; }
+        .search-container input { border: none; outline: none; background: transparent; width: 100%; padding: 8px; font-size: 0.9rem; }
+        .user-actions { display: flex; align-items: center; gap: 15px; flex-shrink: 0; }
+        
+        /* Profile Dropdown Styles */
+        .profile-dropdown { position: relative; }
+        .profile-toggle { display: flex; align-items: center; gap: 10px; background: transparent; border: 1px solid transparent; cursor: pointer; padding: 4px 10px 4px 4px; border-radius: 50px; transition: background-color 0.2s ease, box-shadow 0.2s ease; outline: none; }
+        .profile-toggle:hover, .profile-dropdown:focus-within .profile-toggle { background-color: var(--surface-color); border-color: var(--border-color); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .profile-toggle img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
+        .profile-toggle span { font-weight: 600; font-size: 0.95rem; color: var(--secondary-color); }
+        .profile-toggle .fa-chevron-down { font-size: 0.8rem; color: #888; transition: transform 0.3s ease; }
+        .dropdown-menu { display: none; position: absolute; top: calc(100% + 10px); right: 0; background-color: var(--surface-color); border-radius: var(--border-radius); box-shadow: var(--shadow); border: 1px solid var(--border-color); width: 220px; z-index: 1100; overflow: hidden; padding: 8px 0; }
+        .profile-dropdown:focus-within .dropdown-menu { display: block; }
+        .profile-dropdown:focus-within .profile-toggle .fa-chevron-down { transform: rotate(180deg); }
+        .dropdown-menu ul { list-style: none; padding: 0; margin: 0; }
+        .dropdown-menu ul li a { display: flex; align-items: center; gap: 12px; padding: 12px 20px; text-decoration: none; color: var(--secondary-color); font-size: 0.9rem; transition: background-color 0.2s; }
+        .dropdown-menu ul li a:hover { background-color: #f0f2f5; }
+        .dropdown-menu ul li a i { width: 16px; text-align: center; color: #6c757d; }
+        .dropdown-menu .dropdown-divider { height: 1px; background-color: var(--border-color); margin: 8px 0; }
+        .dropdown-menu ul li a.logout { color: var(--danger-color); font-weight: 500; }
+        .dropdown-menu ul li a.logout i { color: var(--danger-color); }
+
+        /* Modal Styles */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 2000; transition: background-color 0.3s ease; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: var(--surface-color); padding: 0; border-radius: var(--border-radius); width: 90%; max-width: 420px; text-align: center; overflow: hidden; position: relative; }
+        .modal-header-graphic { background: var(--primary-color); color: white; padding: 30px 20px; }
+        .modal-header-graphic i { font-size: 3rem; margin-bottom: 10px; }
+        .modal-header-graphic h3 { font-size: 1.8rem; font-weight: 600; }
+        .modal-body { padding: 30px; max-height: 70vh; overflow-y: auto; scrollbar-width: none; }
+        .modal-body::-webkit-scrollbar { display: none; }
+        .modal-content .close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.8rem; cursor: pointer; color: rgba(255,255,255,0.7); transition: color 0.3s; }
+        .modal-content .close-btn:hover { color: white; }
+        .form-group { margin-bottom: 15px; text-align: left; position: relative; }
+        .form-group .input-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #aaa; }
+        .form-group input { width: 100%; padding: 12px 12px 12px 45px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; }
+        .form-row { display: flex; gap: 15px; }
+        .form-row .form-group { flex: 1; }
+        .form-options { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; margin-bottom: 20px; }
+        .form-options a { color: var(--primary-color); text-decoration: none; }
+        .modal-footer-text { margin-top: 25px; font-size: 0.9rem; }
+        .modal-footer-text a { color: var(--primary-color); font-weight: 600; text-decoration: none; }
+        .otp-group { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
+        .otp-group input { width: 45px; height: 50px; text-align: center; font-size: 1.5rem; font-weight: 600; border: 1px solid var(--border-color); border-radius: 8px; padding: 0; }
+        .otp-group input:focus { border-color: var(--primary-color); outline: none; }
+        .otp-timer { margin-top: 15px; color: #666; }
+        .otp-timer span { font-weight: 700; color: var(--primary-color); }
+        #resendOtpBtn { background: none; border: none; color: var(--primary-color); cursor: pointer; font-weight: 600; margin-top: 10px; }
+        #resendOtpBtn:disabled { color: #999; cursor: not-allowed; }
+        .profile-upload-group { display: flex; align-items: center; gap: 15px; }
+        #profileImagePreview { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; background: #eef2ff; border: 2px solid var(--border-color); }
+        .file-input-wrapper { flex: 1; }
+        .file-input-wrapper input[type="file"] { display: none; }
+        .file-input-label { display: inline-block; padding: 10px 15px; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; background: #f8f9fa; }
+        .file-input-label i { margin-right: 8px; }
+        .gender-group { display: flex; gap: 10px; padding-top: 5px; }
+        .gender-group input[type="radio"] { display: none; }
+        .gender-group .radio-label { flex: 1; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.3s ease; font-weight: 500; }
+        .gender-group .radio-label:hover { background-color: #eef2ff; border-color: var(--primary-color); }
+        .gender-group input[type="radio"]:checked + .radio-label { background-color: var(--primary-color); color: white; border-color: var(--primary-color); font-weight: 600; }
+        .error-message { color: var(--danger-color); font-size: 0.8rem; margin-top: 4px; display: none; }
+        input.invalid { border-color: var(--danger-color); }
+
+        /* Notification Styles */
+        #notification-container { position: fixed; top: 20px; right: 20px; z-index: 3000; display: flex; flex-direction: column; gap: 10px; }
+        .notification { display: flex; align-items: center; padding: 15px 20px; border-radius: var(--border-radius); box-shadow: 0 5px 20px rgba(0,0,0,0.15); width: 340px; max-width: 90vw; color: white; opacity: 0; transform: translateX(100%); transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+        .notification.show { opacity: 1; transform: translateX(0); }
+        .notification.hide { transform: translateX(120%); opacity: 0; }
+        .notification .icon { font-size: 1.6rem; margin-right: 15px; }
+        .notification .message { flex-grow: 1; font-weight: 500; line-height: 1.4; }
+        .notification .close-notif { background: none; border: none; color: rgba(255,255,255,0.7); font-size: 1.4rem; cursor: pointer; margin-left: 15px; transition: color 0.3s; }
+        .notification .close-notif:hover { color: white; }
+        .notification.success { background-color: var(--success-color); }
+        .notification.error { background-color: var(--danger-color); }
+        .notification.info { background-color: var(--primary-color); }
+
+        /* Cart Styles */
+        #cartBtn { position: relative; }
+        .cart-badge { position: absolute; top: -5px; right: -8px; background-color: var(--danger-color); color: white; border-radius: 50%; padding: 3px 7px; font-size: 0.75rem; font-weight: 700; border: 2px solid var(--surface-color); }
+        #cartModal.modal-overlay { justify-content: flex-end; background: transparent; pointer-events: none; }
+        #cartModal .modal-content { border-radius: 0; width: 100%; max-width: 380px; height: 100%; position: fixed; top: 0; right: 0; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); display: flex; flex-direction: column; box-shadow: -5px 0 25px rgba(0,0,0,0.15); }
+        #cartModal.active { background: rgba(0,0,0,0.4); pointer-events: auto; }
+        #cartModal.active .modal-content { transform: translateX(0); }
+        #cartModal .modal-header-graphic { flex-shrink: 0; }
+        #cartModal .modal-body { flex-grow: 1; display: flex; flex-direction: column; }
+        #cartItemsContainer { flex-grow: 1; overflow-y: auto; }
+        .cart-item { display: flex; align-items: center; gap: 15px; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+        .cart-item:last-child { border-bottom: none; }
+        .cart-item-details { flex-grow: 1; }
+        .cart-item-name { font-weight: 600; }
+        .cart-item-price { color: #666; font-size: 0.9rem; }
+        .cart-item-actions .quantity-stepper { background-color: #f0f2f5; color: var(--secondary-color); height: 36px; width: 100px; }
+        .cart-item-actions .quantity-stepper button { color: var(--secondary-color); font-size: 1rem; }
+        .cart-footer { padding-top: 20px; border-top: 2px solid var(--border-color); }
+    </style>
+</head>
+<body>
+    {% load static %}
+    <header class="page-header">
+        <div class="main-header">
+            <div class="logo">Quickly<span>Cart</span></div>
+            <div class="search-container">
+                <i class="fas fa-search" style="color: #999;"></i>
+                <input type="text" id="searchInput" placeholder="Search products...">
+            </div>
+            <div class="user-actions" id="userActions">
+                {% if request.session.user_name %}
+                    <button class="btn btn-outline btn-sm" id="cartBtn">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cartCount" class="cart-badge">0</span>
+                    </button>
+                    <div class="profile-dropdown">
+                        <button class="profile-toggle" aria-haspopup="true" aria-expanded="false">
+                         <img src="{% static 'images/'|add:request.session.image %}" alt="{{ request.session.image }}">
+   
+                             <span>{{ request.session.user_name }}</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu">
+                            <ul>
+                                <li><a href="/account"><i class="fas fa-user-circle"></i> My Account</a></li>
+                                <li><a href="/orders"><i class="fas fa-box"></i> Order History</a></li>
+                                <li class="dropdown-divider"></li>
+                                <li><a href="logout/" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                {% else %}
+                    <button class="btn btn-outline btn-sm" id="loginBtn">Login</button>
+                    <button class="btn btn-sm" id="signupBtn">Sign Up</button>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Modals and Notifications -->
+    <div id="loginModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header-graphic"><button class="close-btn">&times;</button><i class="fas fa-user-circle"></i><h3>Welcome Back!</h3></div>
+            <div class="modal-body">
+                <form id="loginForm" action='user_login/' method="post">
+                    {% csrf_token %}
+                    <div class="form-group"><i class="fas fa-envelope input-icon"></i><input type="email" id="loginEmail" name="username" placeholder="Email" required><span class="error-message"></span></div>
+                    <div class="form-group"><i class="fas fa-lock input-icon"></i><input type="password" id="loginPassword" name="password" placeholder="Password" required><span class="error-message"></span></div>
+                    <div class="form-options"><a href="#">Forgot Password?</a></div>
+                    <button type="submit" class="btn" style="width: 100%;">Login</button>
+                    <p class="modal-footer-text">Don't have an account? <a href="#" id="switchToSignup">Sign Up</a></p>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="signupModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header-graphic"><button class="close-btn">&times;</button><i class="fas fa-user-plus"></i><h3>Create Your Account</h3></div>
+            <div class="modal-body">
+                <form method="post" action="user_register_save/" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <div class="form-group"><i class="fas fa-user input-icon"></i><input type="text" name="firstName" placeholder="First Name" required><span class="error-message"></span></div>
+                        <div class="form-group"><i class="fas fa-user input-icon"></i><input type="text" name="lastName" placeholder="Last Name" required><span class="error-message"></span></div>
+                    </div>
+                    <div class="form-group"><i class="fas fa-envelope input-icon"></i><input type="email" name="email" placeholder="Email" required><span class="error-message"></span></div>
+                    <div class="form-group"><i class="fas fa-phone input-icon"></i><input type="tel" id="signupPhone" name="phone" placeholder="Mobile Number" required pattern="[0-9]{10}"><span class="error-message"></span></div>
+                    <div class="form-group"><i class="fas fa-map-marker-alt input-icon"></i><input type="text" name="address1" placeholder="Address 1 (Home)" required><span class="error-message"></span></div>
+                    <div class="form-row">
+                        <div class="form-group"><i class="fas fa-city input-icon"></i><input type="text" name="city" placeholder="City" required><span class="error-message"></span></div>
+                        <div class="form-group"><i class="fas fa-map-pin input-icon"></i><input type="text" name="pincode" placeholder="Pincode" required pattern="[0-9]{6}"><span class="error-message"></span></div>
+                    </div>
+                    <div class="form-group"><label>Gender</label><div class="gender-group"><input type="radio" id="male" name="gender" value="male" checked><label for="male" class="radio-label">Male</label><input type="radio" id="female" name="gender" value="female"><label for="female" class="radio-label">Female</label><input type="radio" id="other" name="gender" value="other"><label for="other" class="radio-label">Other</label></div></div>
+                    <div class="form-group profile-upload-group"><img src="https://placehold.co/60x60/eef2ff/333?text=+" id="profileImagePreview" alt="Profile Preview"><div class="file-input-wrapper"><label for="profileImage" class="file-input-label"><i class="fas fa-upload"></i> Profile Image</label><input type="file" id="profileImage" name="profileImage" accept="image/*"></div></div>
+                    <div class="form-group"><i class="fas fa-lock input-icon"></i><input type="password" id="password" name="password" placeholder="Password" required><span class="error-message"></span></div>
+                    <div class="form-group"><i class="fas fa-check-circle input-icon"></i><input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required><span class="error-message"></span></div>
+                    <button type="submit" class="btn" style="width: 100%;">Register</button>
+                    <p class="modal-footer-text">Already have an account? <a href="#" id="switchToLogin">Login</a></p>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="otpModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header-graphic"><button class="close-btn">&times;</button><i class="fas fa-key"></i><h3>Verify OTP</h3></div>
+            <div class="modal-body">
+                <p>Enter the OTP sent to <strong id="otpPhone"></strong></p>
+                <form id="otpForm" method="post" action="verify_otp/">
+                    {% csrf_token %}
+                    <div class="otp-group 6"><input type="text" class="otp-input" name="userotp" id="" maxlength=""><span class="error-message" id="otpError"></span></div>
+                    <button type="submit" class="btn" style="width: 100%;">Verify & Create Account</button>
+                    <div class="otp-timer">Resend OTP in <span id="otpTimer">30</span>s</div>
+                    <button type="button" id="resendOtpBtn" disabled>Resend OTP</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="cartModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header-graphic" style="padding: 20px;"><button class="close-btn">&times;</button><i class="fas fa-shopping-cart"></i><h3>Your Cart</h3></div>
+            <div class="modal-body">
+                <div id="cartItemsContainer"></div>
+                <div class="cart-footer">
+                    <div style="text-align: right; font-size: 1.2rem; font-weight: 600; margin-bottom: 20px;">Total: <span id="cartTotal">$0.00</span></div>
+                    <button class="btn" style="width: 100%;">Proceed to Checkout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="notification-container"></div>
+
+    <script>
+    // This script is now self-contained in the header file.
+    document.addEventListener('DOMContentLoaded', () => {
+        const isUserLoggedIn = document.querySelector('.profile-dropdown') !== null;
+
+        function showNotification(message, type = 'info', duration = 5000) {
+            const container = document.getElementById('notification-container');
+            if (!container) return;
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            const icons = { success: 'fa-check-circle', error: 'fa-times-circle', info: 'fa-info-circle' };
+            notification.innerHTML = `<i class="icon fas ${icons[type]}"></i><div class="message">${message}</div><button class="close-notif">&times;</button>`;
+            container.appendChild(notification);
+            requestAnimationFrame(() => notification.classList.add('show'));
+            const close = () => {
+                notification.classList.remove('show');
+                notification.classList.add('hide');
+                setTimeout(() => notification.remove(), 500);
+            };
+            notification.querySelector('.close-notif').addEventListener('click', close);
+            if (duration) {
+                setTimeout(close, duration);
+            }
+        }
+        
+        // Make showNotification globally accessible if needed by other scripts
+        window.showNotification = showNotification;
+
+        {% if messages %}
+            {% for message in messages %}
+                (() => {
+                    let type = 'info';
+                    const tags = "{{ message.tags }}";
+                    if (tags.includes('success')) type = 'success';
+                    else if (tags.includes('error')) type = 'error';
+                    else if (tags.includes('warning')) type = 'error';
+                    showNotification("{{ message|escapejs }}", type, 6000);
+                })();
+            {% endfor %}
+        {% endif %}
+
+        const cart = new Map();
+        const productData = [ // This data would ideally be loaded from a single source in a real app
+            { id: 1, name: 'Fresh Broccoli', price: 2.50, image: 'https://placehold.co/200x200/28a745/FFFFFF?text=Broccoli' },
+            { id: 5, name: 'Organic Carrots', price: 1.80, image: 'https://placehold.co/200x200/E8751A/FFFFFF?text=Carrots' },
+            { id: 2, name: 'Organic Apples', price: 3.50, image: 'https://placehold.co/200x200/dc3545/FFFFFF?text=Apples' },
+            { id: 8, name: 'Amul Taaza Milk', price: 1.70, image: 'https://placehold.co/200x200/17a2b8/FFFFFF?text=Milk' },
+            { id: 13, name: 'Uttam Milk', price: 1.00, image: 'https://placehold.co/200x200/17a2b8/FFFFFF?text=Milk' },
+            { id: 9, name: 'Sourdough Bread', price: 4.50, image: 'https://placehold.co/200x200/6f42c1/FFFFFF?text=Bread' },
+            { id: 3, name: 'Classic Potato Chips', price: 2.70, image: 'https://placehold.co/200x200/ffc107/FFFFFF?text=Chips' },
+        ];
+        
+        function findProductById(id) {
+            return productData.find(p => p.id === id);
+        }
+
+        function updateCart(productId, quantity) {
+            if (quantity > 0) {
+                cart.set(productId, quantity);
+            } else {
+                cart.delete(productId);
+            }
+            // The main page script will be responsible for updating its own UI
+            if (window.updateProductCardUI) {
+                window.updateProductCardUI(productId);
+            }
+            updateCartSummary();
+        }
+        window.updateCart = updateCart; // Expose to global scope
+
+        function updateCartSummary() {
+            const cartCountEl = document.getElementById('cartCount');
+            const cartItemsContainer = document.getElementById('cartItemsContainer');
+            const cartTotalEl = document.getElementById('cartTotal');
+            let totalItems = 0;
+            let totalPrice = 0;
+
+            if (!cartItemsContainer || !cartTotalEl) return;
+
+            if (cart.size === 0) {
+                cartItemsContainer.innerHTML = '<p style="text-align: center; color: #666;">Your cart is empty.</p>';
+            } else {
+                cartItemsContainer.innerHTML = '';
+                for (const [productId, quantity] of cart.entries()) {
+                    totalItems += quantity;
+                    const product = findProductById(productId);
+                    if (product) {
+                        totalPrice += product.price * quantity;
+                        const itemHTML = `
+                            <div class="cart-item" data-product-id="${productId}">
+                                <img src="${product.image}" alt="${product.name}" style="width: 60px; height: 60px; border-radius: 8px; object-fit: cover;">
+                                <div class="cart-item-details">
+                                    <div class="cart-item-name">${product.name}</div>
+                                    <div class="cart-item-price">$${product.price.toFixed(2)}</div>
+                                </div>
+                                <div class="cart-item-actions">
+                                    <div class="quantity-stepper">
+                                        <button class="minus-btn" data-product-id="${productId}">-</button>
+                                        <span class="quantity">${quantity}</span>
+                                        <button class="plus-btn" data-product-id="${productId}">+</button>
+                                    </div>
+                                </div>
+                            </div>`;
+                        cartItemsContainer.innerHTML += itemHTML;
+                    }
+                }
+            }
+            
+            if(cartCountEl) {
+                cartCountEl.textContent = totalItems;
+                cartCountEl.style.display = totalItems > 0 ? 'inline-block' : 'none';
+            }
+            cartTotalEl.textContent = `$${totalPrice.toFixed(2)}`;
+        }
+
+        const cartItemsContainer = document.getElementById('cartItemsContainer');
+        if (cartItemsContainer) {
+            cartItemsContainer.addEventListener('click', e => {
+                const target = e.target;
+                if (target.matches('.plus-btn') || target.matches('.minus-btn')) {
+                    const productId = parseInt(target.dataset.productId);
+                    let currentQuantity = cart.get(productId) || 0;
+                    if (target.matches('.plus-btn')) currentQuantity++;
+                    else currentQuantity--;
+                    updateCart(productId, currentQuantity);
+                }
+            });
+        }
+        
+        // Modal and Form Logic
+        const loginModal = document.getElementById('loginModal');
+        const signupModal = document.getElementById('signupModal');
+        const cartModal = document.getElementById('cartModal');
+
+        const loginBtn = document.getElementById('loginBtn');
+        if (loginBtn) loginBtn.addEventListener('click', () => loginModal.classList.add('active'));
+
+        const signupBtn = document.getElementById('signupBtn');
+        if (signupBtn) signupBtn.addEventListener('click', () => signupModal.classList.add('active'));
+        
+        const cartBtn = document.getElementById('cartBtn');
+        if (cartBtn) cartBtn.addEventListener('click', () => cartModal.classList.add('active'));
+        
+        document.querySelectorAll('.modal-overlay .close-btn').forEach(btn => {
+            btn.addEventListener('click', () => btn.closest('.modal-overlay').classList.remove('active'));
+        });
+        
+        if (cartModal) {
+            cartModal.addEventListener('click', e => {
+                if (e.target === cartModal) cartModal.classList.remove('active');
+            });
+        }
+
+        const switchToSignup = document.getElementById('switchToSignup');
+        if (switchToSignup) {
+            switchToSignup.addEventListener('click', (e) => {
+                e.preventDefault();
+                loginModal.classList.remove('active');
+                signupModal.classList.add('active');
+            });
+        }
+
+        const switchToLogin = document.getElementById('switchToLogin');
+        if(switchToLogin) {
+            switchToLogin.addEventListener('click', (e) => {
+                e.preventDefault();
+                signupModal.classList.remove('active');
+                loginModal.classList.add('active');
+            });
+        }
+        
+        // Initial state
+        updateCartSummary();
+    });
+    </script>
+</body>
+</html>
